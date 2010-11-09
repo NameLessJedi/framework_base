@@ -181,15 +181,18 @@ static int is_valid_apk_path(const char *path)
 {
     int len = strlen(APK_DIR_PREFIX);
 int nosubdircheck = 0;
-    if (strncmp(path, APK_DIR_PREFIX, len)) {
-        len = strlen(PROTECTED_DIR_PREFIX);
-        if (strncmp(path, PROTECTED_DIR_PREFIX, len)) {
-            len = strlen(SDCARD_DIR_PREFIX);
-            if (strncmp(path, SDCARD_DIR_PREFIX, len)) {
-                LOGE("invalid apk path '%s' (bad prefix)\n", path);
-                return 0;
-            } else {
-                nosubdircheck = 1;
+    if (strncmp(path, APK_EXT_DIR_PREFIX, len)) {
+        len = strlen(APK_DIR_PREFIX);
+        if (strncmp(path, APK_DIR_PREFIX, len)) {
+            len = strlen(PROTECTED_DIR_PREFIX);
+            if (strncmp(path, PROTECTED_DIR_PREFIX, len)) {
+                len = strlen(SDCARD_DIR_PREFIX);
+                if (strncmp(path, SDCARD_DIR_PREFIX, len)) {
+                    LOGE("invalid apk path '%s' (bad prefix)\n", path);
+                    return 0;
+                } else {
+                    nosubdircheck = 1;
+                }
             }
         }
     }
@@ -424,6 +427,10 @@ int create_cache_path(char path[PKG_PATH_MAX], const char *src)
         if (strcmp(dexopt_data_only, "1") != 0) {
             cache_path = DALVIK_SYSTEM_CACHE_PREFIX;
         }
+    }
+
+    if (!strncmp(src, "/sd-ext", 7)) {
+        cache_path = DALVIK_SDEXT_CACHE_PREFIX;
     }
 
     dstlen = srclen + strlen(cache_path) + 

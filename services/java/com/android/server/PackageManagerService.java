@@ -213,8 +213,14 @@ class PackageManagerService extends IPackageManager.Stub {
     // This is the object monitoring mAppInstallDir.
     final FileObserver mAppInstallObserver;
 
+    // This is the object monitoring mSdExtInstallDir.
+    final FileObserver mSdExtInstallObserver;
+
     // This is the object monitoring mDrmAppPrivateInstallDir.
     final FileObserver mDrmAppInstallObserver;
+
+    // This is the object monitoring mDrmSdExtPrivateInstallDir.
+    final FileObserver mDrmSdExtInstallObserver;
 
     // Used for priviledge escalation.  MUST NOT BE CALLED WITH mPackages
     // LOCK HELD.  Can be called with mInstallLock held.
@@ -223,11 +229,17 @@ class PackageManagerService extends IPackageManager.Stub {
     final File mFrameworkDir;
     final File mSystemAppDir;
     final File mAppInstallDir;
+    final File mSdExtInstallDir;
     final File mDalvikCacheDir;
+    final File mSdExtDalvikCacheDir;
+
+    // Whether or not we are installing on the EXT partition.
+    boolean mExtInstall;
 
     // Directory containing the private parts (e.g. code and non-resource assets) of forward-locked
     // apps.
     final File mDrmAppPrivateInstallDir;
+    final File mDrmSdExtPrivateInstallDir;
 
     // ----------------------------------------------------------------
 
@@ -767,8 +779,11 @@ class PackageManagerService extends IPackageManager.Stub {
             mHandler = new PackageHandler(mHandlerThread.getLooper());
 
             File dataDir = Environment.getDataDirectory();
+            File sdExtDir = Environment.getSdExtDirectory();
             mAppDataDir = new File(dataDir, "data");
+            mSdExtInstallDir = new File(sdExtDir, "app");
             mDrmAppPrivateInstallDir = new File(dataDir, "app-private");
+            mDrmSdExtPrivateInstallDir = new File(sdExtDir, "app-private");
 
             if (mInstaller == null) {
                 // Make sure these dirs exist, when we are running in
@@ -778,6 +793,8 @@ class PackageManagerService extends IPackageManager.Stub {
                 miscDir.mkdirs();
                 mAppDataDir.mkdirs();
                 mDrmAppPrivateInstallDir.mkdirs();
+                mSdExtInstallDir.mkdirs();
+                mDrmSdExtPrivateInstallDir.mkdirs();
             }
 
             readPermissions();
@@ -800,6 +817,7 @@ class PackageManagerService extends IPackageManager.Stub {
 
             mFrameworkDir = new File(Environment.getRootDirectory(), "framework");
             mDalvikCacheDir = new File(dataDir, "dalvik-cache");
+            mSdExtDalvikCacheDir = new File(sdExtDir, "dalvik-cache");
 
             if (mInstaller != null) {
                 boolean didDexOpt = false;
@@ -901,6 +919,19 @@ class PackageManagerService extends IPackageManager.Stub {
                             }
                         }
                     }
+                    if (isA2SDActive()) {
+                        files = mSdExtDalvikCacheDir.list();
+                        if (files != null) {
+                            for (int i=0; i<files.length; i++) {
+                                String fn = files[i];
+                                if (fn.startsWith("sd-ext@app@")
+                                        || fn.startsWith("sd-ext@app-private@")) {
+                                    Log.i(TAG, "Pruning dalvik file: " + fn);
+                                    (new File(mSdExtDalvikCacheDir, fn)).delete();
+                                }
+                            }
+                        }
+                    }
                 }
             }
 
@@ -965,10 +996,20 @@ class PackageManagerService extends IPackageManager.Stub {
             scanDirLI(mAppInstallDir, 0, scanMode);
             mAppInstallObserver.startWatching();
 
+            mSdExtInstallObserver = new AppDirObserver(
+                mSdExtInstallDir.getPath(), OBSERVER_EVENTS, false);
+            mSdExtInstallObserver.startWatching();
+            scanDirLI(mSdExtInstallDir, 0, scanMode);
+
             mDrmAppInstallObserver = new AppDirObserver(
                 mDrmAppPrivateInstallDir.getPath(), OBSERVER_EVENTS, false);
             scanDirLI(mDrmAppPrivateInstallDir, PackageParser.PARSE_FORWARD_LOCK, scanMode);
             mDrmAppInstallObserver.startWatching();
+
+            mDrmSdExtInstallObserver = new AppDirObserver(
+                mDrmSdExtPrivateInstallDir.getPath(), OBSERVER_EVENTS, false);
+            scanDirLI(mDrmSdExtPrivateInstallDir, PackageParser.PARSE_FORWARD_LOCK, scanMode);
+            mDrmSdExtInstallObserver.startWatching();
 
             EventLog.writeEvent(EventLogTags.BOOT_PROGRESS_PMS_SCAN_END,
                     SystemClock.uptimeMillis());
@@ -4711,6 +4752,11 @@ class PackageManagerService extends IPackageManager.Stub {
     public void installPackage(
             final Uri packageURI, final IPackageInstallObserver observer, final int flags) {
         installPackage(packageURI, observer, flags, null);
+    }
+
+    private boolean isA2SDActive() {
+        return SystemProperties.getBoolean("cm.a2sd.active", false) ||
+               SystemProperties.getBoolean("cm.a2sd.force", false)  ;
     }
 
     /* Called when a downloaded package installation has been confirmed by the user */

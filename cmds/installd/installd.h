@@ -57,14 +57,17 @@
 #define CACHE_DIR_POSTFIX      "/cache"
 
 #define APK_DIR_PREFIX         "/data/app/"
+#define APK_EXT_DIR_PREFIX     "/sd-ext/app/"
 
 /* other handy constants */
 
 #define PROTECTED_DIR_PREFIX  "/data/app-private/"
+#define PROTECTED_EXT_DIR_PREFIX "/sd-ext/app-private/"
 #define SDCARD_DIR_PREFIX  getenv("ASEC_MOUNTPOINT")
 
 #define DALVIK_CACHE_PREFIX   "/data/dalvik-cache/"
 #define DALVIK_SYSTEM_CACHE_PREFIX "/cache/dalvik-cache/"
+#define DALVIK_SDEXT_CACHE_PREFIX "/sd-ext/dalvik-cache/"
 #define DALVIK_CACHE_POSTFIX  "/classes.dex"
 
 #define UPDATE_COMMANDS_DIR_PREFIX  "/system/etc/updatecmds/"
