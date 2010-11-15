@@ -262,6 +262,17 @@ public class ApplicationInfo extends PackageItemInfo implements Parcelable {
     public static final int FLAG_EXTERNAL_STORAGE = 1<<18;
 
     /**
+     * Value for {@link #flags}: Set to true if the application is
+     * currently installed on external/removable EXT FS storage.  Such
+     * applications may not be available if their storage is not currently
+     * mounted.  When the storage it is on is not available, it will look like
+     * the applicaction has been uninstalled (its .apk is no longer available)
+     * but its persistent data is not removed. FIXME: distinguish it some more
+     * from FLAG_EXTERNAL_STORAGE which seems to point to SD card FAT fs
+     */
+    public static final int FLAG_SDEXT_STORAGE = 1<<19;
+
+    /**
      * Value for {@link #flags}: Set to true if the application has been
      * installed using the forward lock option.
      *

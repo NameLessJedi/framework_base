@@ -308,6 +308,7 @@ public class DefaultContainerService extends IntentService {
             String archiveFilePath, int flags) {
         boolean checkInt = false;
         boolean checkExt = false;
+        boolean checkSDExt = false;
         boolean checkBoth = false;
         check_inner : {
             // Check flags.
@@ -325,6 +326,11 @@ public class DefaultContainerService extends IntentService {
                 // Check external storage and return
                 checkExt = true;
                 break check_inner;
+            } else if ((flags & PackageManager.INSTALL_SDEXT) != 0) {
+                // Explicit flag to install to sdext.
+                // Check sdext storage and return
+                checkSDExt = true;
+                break check_inner;
             }
             // Check for manifest option
             if (installLocation == PackageInfo.INSTALL_LOCATION_INTERNAL_ONLY) {
@@ -336,6 +342,7 @@ public class DefaultContainerService extends IntentService {
                 break check_inner;
             } else if (installLocation == PackageInfo.INSTALL_LOCATION_AUTO) {
                 checkInt = true;
+                checkSDExt = true;
                 checkBoth = true;
                 break check_inner;
             }
@@ -349,6 +356,9 @@ public class DefaultContainerService extends IntentService {
                 break check_inner;
             } else if (installPreference == PackageHelper.APP_INSTALL_EXTERNAL) {
                 checkExt = true;
+                break check_inner;
+            } else if (installPreference == PackageHelper.APP_INSTALL_SDEXT) {
+                checkSDExt = true;
                 break check_inner;
             }
             // Fall back to default policy if nothing else is specified.
@@ -404,6 +414,11 @@ public class DefaultContainerService extends IntentService {
         } else if (checkExt) {
             if (fitsOnSd) {
                 return PackageHelper.RECOMMEND_INSTALL_EXTERNAL;
+            }
+        } else if (checkSDExt) {
+            // for now dodge sdext size check
+            if (fitsOnInt) {
+                return PackageHelper.RECOMMEND_INSTALL_SDEXT;
             }
         }
         if (checkBoth) {

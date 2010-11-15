@@ -179,7 +179,7 @@ int free_cache(int free_size)
  */
 static int is_valid_apk_path(const char *path)
 {
-    int len = strlen(APK_DIR_PREFIX);
+    int len = strlen(APK_EXT_DIR_PREFIX);
 int nosubdircheck = 0;
     if (strncmp(path, APK_EXT_DIR_PREFIX, len)) {
         len = strlen(APK_DIR_PREFIX);
