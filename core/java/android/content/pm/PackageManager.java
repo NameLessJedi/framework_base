@@ -636,7 +636,7 @@ public abstract class PackageManager {
      * the package should be moved to SD-Ext
      * @hide
      */
-    public static final int MOVE_SDEXT = 0x00000004
+    public static final int MOVE_SDEXT = 0x00000004;
 
     /**
      * Feature for {@link #getSystemAvailableFeatures} and

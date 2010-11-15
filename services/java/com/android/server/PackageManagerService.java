@@ -9979,7 +9979,7 @@ class PackageManagerService extends IPackageManager.Stub {
                                        if ((mp.flags & PackageManager.INSTALL_EXTERNAL) != 0) {
                                            pkg.applicationInfo.flags |= ApplicationInfo.FLAG_EXTERNAL_STORAGE;
                                        } else if ((mp.flags & PackageManager.INSTALL_SDEXT) != 0) {
-                                           pkg.applicationInfo.flags |= ApplicationInfo.FLAT_SDEXT_STORAGE;
+                                           pkg.applicationInfo.flags |= ApplicationInfo.FLAG_SDEXT_STORAGE;
                                        } else {
                                            pkg.applicationInfo.flags &= ~ApplicationInfo.FLAG_EXTERNAL_STORAGE;
                                            pkg.applicationInfo.flags &= ~ApplicationInfo.FLAG_SDEXT_STORAGE;
