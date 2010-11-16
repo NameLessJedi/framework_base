@@ -67,7 +67,6 @@ public class PackageManagerTests extends AndroidTestCase {
     private static final int APP_INSTALL_AUTO = PackageHelper.APP_INSTALL_AUTO;
     private static final int APP_INSTALL_DEVICE = PackageHelper.APP_INSTALL_INTERNAL;
     private static final int APP_INSTALL_SDCARD = PackageHelper.APP_INSTALL_EXTERNAL;
-    private static final int APP_INSTALL_SDEXT = PackageHelper.APP_INSTALL_SDEXT;
     private boolean mOrigState;
 
     void failStr(String errMsg) {
@@ -281,12 +280,8 @@ public class PackageManagerTests extends AndroidTestCase {
         return pkgLen <= sdSize;
 
     }
-    private boolean checkInt(long pkgLen, boolean sdext) {
-        if (sdext) {
-            StatFs intStats = new StatFs(Environment.getSdExtDirectory().getPath();
-        } else {
-            StatFs intStats = new StatFs(Environment.getDataDirectory().getPath());
-        }
+    private boolean checkInt(long pkgLen) {
+        StatFs intStats = new StatFs(Environment.getDataDirectory().getPath());
         long intSize = (long)intStats.getBlockCount() *
                 (long)intStats.getBlockSize();
         long iSize = (long)intStats.getAvailableBlocks() *
@@ -296,7 +291,6 @@ public class PackageManagerTests extends AndroidTestCase {
     }
     private static final int INSTALL_LOC_INT = 1;
     private static final int INSTALL_LOC_SD = 2;
-    private static final int INSTALL_LOC_SDEXT = 3;
     private static final int INSTALL_LOC_ERR = -1;
     private int getInstallLoc(int flags, int expInstallLocation, long pkgLen) {
         // Flags explicitly over ride everything else.
@@ -306,44 +300,26 @@ public class PackageManagerTests extends AndroidTestCase {
             return INSTALL_LOC_SD;
         } else if ((flags & PackageManager.INSTALL_INTERNAL) != 0) {
             return INSTALL_LOC_INT;
-        } else if ((flags & PackageManager.INSTALL_SDEXT) != 0) {
-            return INSTALL_LOC_SDEXT;
         }
         // Manifest option takes precedence next
-        if (expInstallLOcation == PackageInfo.INSTALL_LOCATION_PREFER_SDEXT) {
-            if (checkInt(pkgLen, true)) {
-               return INSTALL_LOC_SDEXT;
-            }
-            if (checkSd(pkgLen)) {
-               return INSTALL_LOC_SD;
-            }
-            if (checkInt(pkgLen, false)) {
-               return INSTALL_LOC_INT;
-            }
-            return INSTALL_LOC_ERR;
-        }
         if (expInstallLocation == PackageInfo.INSTALL_LOCATION_PREFER_EXTERNAL) {
             if (checkSd(pkgLen)) {
                return INSTALL_LOC_SD;
             }
-            if (checkInt(pkgLen, false)){
+            if (checkInt(pkgLen)) {
                 return INSTALL_LOC_INT;
             }
             return INSTALL_LOC_ERR;
         }
         if (expInstallLocation == PackageInfo.INSTALL_LOCATION_INTERNAL_ONLY) {
-            if (checkInt(pkgLen, false)) {
+            if (checkInt(pkgLen)) {
                 return INSTALL_LOC_INT;
             }
             return INSTALL_LOC_ERR;
         }
         if (expInstallLocation == PackageInfo.INSTALL_LOCATION_AUTO) {
-            // Check for free memory on sd-ext
-            if (checkInt(pkgLen, true)) {
-                return INSTALL_LOC_SDEXT;
-            }
             // Check for free memory internally
-            if (checkInt(pkgLen, false)) {
+            if (checkInt(pkgLen)) {
                 return INSTALL_LOC_INT;
             }
             // Check for free memory externally
@@ -355,13 +331,8 @@ public class PackageManagerTests extends AndroidTestCase {
         // Check for settings preference.
         boolean checkSd = false;
         int userPref = getDefaultInstallLoc();
-        if (userPref == APP_INSTALL_SDEXT) {
-            if (checkInt(pkgLen, true)) {
-                return INSTALL_LOC_SDEXT;
-            }
-            return INSTALL_LOC_ERR;
-        } else if (userPref == APP_INSTALL_DEVICE) {
-            if (checkInt(pkgLen, false)) {
+        if (userPref == APP_INSTALL_DEVICE) {
+            if (checkInt(pkgLen)) {
                 return INSTALL_LOC_INT;
             }
             return INSTALL_LOC_ERR;
@@ -373,12 +344,12 @@ public class PackageManagerTests extends AndroidTestCase {
         }
         // Default system policy for apps with no manifest option specified.
         // Check for free memory internally
-        if (checkInt(pkgLen, false)) {
+        if (checkInt(pkgLen)) {
             return INSTALL_LOC_INT;
         }
         return INSTALL_LOC_ERR;
     }
-// FIXME: NLJ
+
     private void assertInstall(PackageParser.Package pkg, int flags, int expInstallLocation) {
         try {
             String pkgName = pkg.packageName;
@@ -405,17 +376,10 @@ public class PackageManagerTests extends AndroidTestCase {
                     assertEquals(srcPath, appInstallPath);
                     assertEquals(publicSrcPath, appInstallPath);
                     assertFalse((info.flags & ApplicationInfo.FLAG_EXTERNAL_STORAGE) != 0);
-                } else if (rLoc == INSTALL_LOC_SD) {
+                } else if (rLoc == INSTALL_LOC_SD){
                     assertTrue((info.flags & ApplicationInfo.FLAG_EXTERNAL_STORAGE) != 0);
                     assertTrue(srcPath.startsWith(SECURE_CONTAINERS_PREFIX));
                     assertTrue(publicSrcPath.startsWith(SECURE_CONTAINERS_PREFIX));
-                } else if (rLoc == INSTALL_LOC_SDEXT) { //FIXME: NLJ "new File" ; FLAG_EXTERNAL_STORAGE
-                    File SdExtDir = Environment.getSdExtDirectory();
-                    appInstallPath = new File(SdExtDir, "app").getPath();
-                    drmInstallPath = new File(SdExtDir, "app-private").getPath();
-                    assertEquals(srcPath, appInstallPath);
-                    assertEquals(publicSrcPath, appInstallPath);
-                    assertTrue((info.flags & ApplicationInfo.FLAG_EXTERNAL_STORAGE) != 0);
                 } else {
                     // TODO handle error. Install should have failed.
                 }
@@ -883,8 +847,6 @@ public class PackageManagerTests extends AndroidTestCase {
 
     /* sdcard mount/unmount tests ******/
 
-    // FIXME: External media handling
-
     class SdMountReceiver extends GenericReceiver {
         String pkgNames[];
         boolean status = true;
@@ -1119,12 +1081,6 @@ public class PackageManagerTests extends AndroidTestCase {
     public void testManifestInstallLocationSdcard() {
         installFromRawResource("install.apk", R.raw.install_loc_sdcard,
                 0, true, false, -1, PackageInfo.INSTALL_LOCATION_PREFER_EXTERNAL);
-    }
-
-    @MediumTest
-    public void testManifestInstallLocationSdExt() {
-        installFromRawResource("install.apk", R.raw.install_loc_sdext,
-                0, true, false, -1, PackageInfo.INSTALL_LOCATION_PREFER_SDEXT);
     }
 
     @MediumTest
