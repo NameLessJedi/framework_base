@@ -682,6 +682,13 @@ class PackageManagerService extends IPackageManager.Stub {
         return false;
     }
 
+    static boolean installOnSdExt(int flags) {
+        if ((flags & PackagaManager.INSTALL_SDEXT) != 0) {
+            return true;
+        }
+        return false;
+    }
+
     static boolean isFwdLocked(int flags) {
         if ((flags & PackageManager.INSTALL_FORWARD_LOCK) != 0) {
             return true;
