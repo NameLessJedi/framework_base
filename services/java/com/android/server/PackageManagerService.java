@@ -4953,7 +4953,7 @@ class PackageManagerService extends IPackageManager.Stub {
                                     Log.i("SDEXT", "PackageManagerService: 4946");
                                     return PackageHelper.RECOMMEND_INSTALL_EXTERNAL;
                                 }
-                                Log.i("SDEXT", "PackageManagerService: 4949"):
+                                Log.i("SDEXT", "PackageManagerService: 4949");
                                 return PackageHelper.RECOMMEND_INSTALL_INTERNAL;
                             }
                         }
@@ -5404,12 +5404,12 @@ class PackageManagerService extends IPackageManager.Stub {
         String resourceFileName;
         boolean created = false;
 
-        FileInstallArgs(InstallParams params) {
+        SdExtInstallArgs(InstallParams params) {
             super(params.packageURI, params.observer,
                     params.flags, params.installerPackageName);
         }
 
-        FileInstallArgs(String fullCodePath, String fullResourcePath) {
+        SdExtInstallArgs(String fullCodePath, String fullResourcePath) {
             super(null, null, 0, null);
             File codeFile = new File(fullCodePath);
             installDir = codeFile.getParentFile();
@@ -5417,7 +5417,7 @@ class PackageManagerService extends IPackageManager.Stub {
             resourceFileName = fullResourcePath;
         }
 
-        FileInstallArgs(Uri packageURI, String pkgName) {
+        SdExtInstallArgs(Uri packageURI, String pkgName) {
             super(packageURI, null, 0, null);
             boolean fwdLocked = isFwdLocked(flags);
             installDir = fwdLocked ? mDrmSdExtPrivateInstallDir : mSdExtInstallDir;
