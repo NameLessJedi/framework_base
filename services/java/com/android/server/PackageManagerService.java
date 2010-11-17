@@ -5140,6 +5140,8 @@ class PackageManagerService extends IPackageManager.Stub {
     private InstallArgs createInstallArgs(InstallParams params) {
         if (installOnSd(params.flags)) {
             return new SdInstallArgs(params);
+        } else if (installOnSdExt(params.flags)) {
+            return new SdExtInstallArgs(params);
         } else {
             return new FileInstallArgs(params);
         }
@@ -5148,6 +5150,8 @@ class PackageManagerService extends IPackageManager.Stub {
     private InstallArgs createInstallArgs(int flags, String fullCodePath, String fullResourcePath) {
         if (installOnSd(flags)) {
             return new SdInstallArgs(fullCodePath, fullResourcePath);
+        } else if (installOnSdExt(flags)) {
+            return new SdExtInstallArgs(fullCodePath, fullResourcePath);
         } else {
             return new FileInstallArgs(fullCodePath, fullResourcePath);
         }
@@ -5158,6 +5162,8 @@ class PackageManagerService extends IPackageManager.Stub {
         if (installOnSd(flags)) {
             String cid = getNextCodePath(null, pkgName, "/" + SdInstallArgs.RES_FILE_NAME);
             return new SdInstallArgs(packageURI, cid);
+        } else if (installOnSdExt(flags)) {
+            return new SdExtInstallArgs(packageURI, pkgName);
         } else {
             return new FileInstallArgs(packageURI, pkgName);
         }
