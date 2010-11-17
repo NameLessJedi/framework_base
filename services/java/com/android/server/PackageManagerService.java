@@ -683,7 +683,7 @@ class PackageManagerService extends IPackageManager.Stub {
     }
 
     static boolean installOnSdExt(int flags) {
-        if ((flags & PackagaManager.INSTALL_SDEXT) != 0) {
+        if ((flags & PackageManager.INSTALL_SDEXT) != 0) {
             return true;
         }
         return false;
@@ -4913,8 +4913,6 @@ class PackageManagerService extends IPackageManager.Stub {
             int installLocation = pkgLite.installLocation;
             boolean onSd = (flags & PackageManager.INSTALL_EXTERNAL) != 0;
             boolean onSdext = (flags & PackageManager.INSTALL_SDEXT) != 0;
-            Log.i("SDEXT", "PackageManagerService: 4909 onSd = " + onSd.toString());
-            Log.i("SDEXT", "PackageManagerService: 4910 onSdext = " + onSdext.toString());
             synchronized (mPackages) {
                 PackageParser.Package pkg = mPackages.get(packageName);
                 if (pkg != null) {
@@ -4967,7 +4965,7 @@ class PackageManagerService extends IPackageManager.Stub {
             // All the special cases have been taken care of.
             // Return result based on recommended install location.
             if (onSd) {
-                Log.i("SDEXT", "PackageManagerService: 4963"):
+                Log.i("SDEXT", "PackageManagerService: 4963");
                 return PackageHelper.RECOMMEND_INSTALL_EXTERNAL;
             } else if (onSdext) {
                 Log.i("SDEXT", "PackageManagerService: 4966");
