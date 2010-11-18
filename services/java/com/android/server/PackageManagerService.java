@@ -4923,41 +4923,33 @@ class PackageManagerService extends IPackageManager.Stub {
                                 Slog.w(TAG, "Cannot install update to system app on sdcard");
                                 return PackageHelper.RECOMMEND_FAILED_INVALID_LOCATION;
                             }
-                            Log.i("SDEXT", "PackageManagerService: 4921 ");
                             return PackageHelper.RECOMMEND_INSTALL_INTERNAL;
                         } else {
                             if (onSd) {
                                 // Install flag overrides everything.
-                                Log.i("SDEXT", "PackageManagerService: 4926 ");
                                 return PackageHelper.RECOMMEND_INSTALL_EXTERNAL;
                             } else if (onSdext) {
                                 // Install flag overrides everything.
-                                Log.i("SDEXT", "PackageManagerService: 4930 ");
                                 return PackageHelper.RECOMMEND_INSTALL_SDEXT;
                             }
                             // If current upgrade specifies particular preference
                             if (installLocation == PackageInfo.INSTALL_LOCATION_INTERNAL_ONLY) {
                                 // Application explicitly specified internal.
-                                Log.i("SDEXT", "PackageManagerService: 4936 ");
                                 return PackageHelper.RECOMMEND_INSTALL_INTERNAL;
                             } else if (installLocation == PackageInfo.INSTALL_LOCATION_PREFER_EXTERNAL) {
                                 // App explictly prefers external. Let policy decide
                             } else if (installLocation == PackageInfo.INSTALL_LOCATION_PREFER_SDEXT) {
-                                Log.i("SDEXT", "PackageManagerService: 4941");
                                 return PackageHelper.RECOMMEND_INSTALL_SDEXT;
                             } else {
                                 // Prefer previous location
                                 if ((pkg.applicationInfo.flags & ApplicationInfo.FLAG_EXTERNAL_STORAGE) != 0) {
-                                    Log.i("SDEXT", "PackageManagerService: 4946");
                                     return PackageHelper.RECOMMEND_INSTALL_EXTERNAL;
                                 }
-                                Log.i("SDEXT", "PackageManagerService: 4949");
                                 return PackageHelper.RECOMMEND_INSTALL_INTERNAL;
                             }
                         }
                     } else {
                         // Invalid install. Return error code
-                        Log.i("SDEXT", "PackageManagerService: 4955");
                         return PackageHelper.RECOMMEND_FAILED_ALREADY_EXISTS;
                     }
                 }
@@ -4965,10 +4957,8 @@ class PackageManagerService extends IPackageManager.Stub {
             // All the special cases have been taken care of.
             // Return result based on recommended install location.
             if (onSd) {
-                Log.i("SDEXT", "PackageManagerService: 4963");
                 return PackageHelper.RECOMMEND_INSTALL_EXTERNAL;
             } else if (onSdext) {
-                Log.i("SDEXT", "PackageManagerService: 4966");
                 return PackageHelper.RECOMMEND_INSTALL_SDEXT;
             }
             return pkgLite.recommendedInstallLocation;
@@ -5021,20 +5011,17 @@ class PackageManagerService extends IPackageManager.Stub {
                         // Override install location with flags
                         if (loc == PackageHelper.RECOMMEND_INSTALL_SDEXT) {
                             // Set the flag to install on sd-ext
-                            Log.i("SDEXT", "PackageManagerService: 5019");
                             flags |= PackageManager.INSTALL_SDEXT;
                             flags &= ~PackageManager.INSTALL_EXTERNAL;
                             flags &= ~PackageManager.INSTALL_INTERNAL;
                         } else if (loc == PackageHelper.RECOMMEND_INSTALL_EXTERNAL) {
                             // Set the flag to install on external media.
-                            Log.i("SDEXT", "PackageManagerService: 5025");
                             flags |= PackageManager.INSTALL_EXTERNAL;
                             flags &= ~PackageManager.INSTALL_INTERNAL;
                             flags &= ~PackageManager.INSTALL_SDEXT;
                         } else {
                             // Make sure the flag for installing on external
                             // media is unset
-                            Log.i("SDEXT", "PackageManagerService: 5032");
                             flags |= PackageManager.INSTALL_INTERNAL;
                             flags &= ~PackageManager.INSTALL_EXTERNAL;
                             flags &= ~PackageManager.INSTALL_SDEXT;
