@@ -10241,7 +10241,7 @@ class PackageManagerService extends IPackageManager.Stub {
                    }
                }
            }
-       }
+       });
    }
 
    public boolean setInstallLocation(int loc) {
