@@ -138,6 +138,7 @@ class PackageManagerService extends IPackageManager.Stub {
     private static final boolean DEBUG_UPGRADE = false;
     private static final boolean DEBUG_INSTALL = false;
     private static final boolean DEBUG_NATIVE = false;
+    private static final boolean DEBUG_SDEXT = true;
 
     private static final boolean MULTIPLE_APPLICATION_UIDS = true;
     private static final int RADIO_UID = Process.PHONE_UID;
@@ -5123,9 +5124,16 @@ class PackageManagerService extends IPackageManager.Stub {
     }
 
     private InstallArgs createInstallArgs(InstallParams params) {
-        if (installOnSd(params.flags)) {
+        boolean ExtInstall = (getInstallLocation() == PackageHelper.APP_INSTALL_SDEXT);
+        // Prefer sd-ext if user says so
+        if (DEBUG_SDEXT) Log.v("SDEXT", "ExtInstall is " + ExtInstall + " lineno 5129");
+        if (ExtInstall) {
+            return new SdExtInstallArgs(params);
+        } else if (installOnSd(params.flags)) {
             return new SdInstallArgs(params);
         } else if (installOnSdExt(params.flags)) {
+            // Very unlikely for an app to ask to be installed on sd-ext
+            // but who knows?
             return new SdExtInstallArgs(params);
         } else {
             return new FileInstallArgs(params);
@@ -5133,9 +5141,16 @@ class PackageManagerService extends IPackageManager.Stub {
     }
 
     private InstallArgs createInstallArgs(int flags, String fullCodePath, String fullResourcePath) {
-        if (installOnSd(flags)) {
+        boolean ExtInstall = (getInstallLocation() == PackageHelper.APP_INSTALL_SDEXT);
+        if (DEBUG_SDEXT) Log.v("SDEXT", "ExtInstall is " + ExtInstall + " lineno 5145");
+        // Prefer sd-ext if user says so
+        if (ExtInstall) {
+            return new SdExtInstallArgs(fullCodePath, fullResourcePath);
+        } else if (installOnSd(flags)) {
             return new SdInstallArgs(fullCodePath, fullResourcePath);
         } else if (installOnSdExt(flags)) {
+            // Very unlikely for an app to ask to be installed on sd-ext
+            // but who knows?
             return new SdExtInstallArgs(fullCodePath, fullResourcePath);
         } else {
             return new FileInstallArgs(fullCodePath, fullResourcePath);
@@ -5144,10 +5159,17 @@ class PackageManagerService extends IPackageManager.Stub {
 
     private InstallArgs createInstallArgs(Uri packageURI, int flags,
             String pkgName) {
-        if (installOnSd(flags)) {
+        boolean ExtInstall = (getInstallLocation() == PackageHelper.APP_INSTALL_SDEXT);
+        if (DEBUG_SDEXT) Log.v("SDEXT", "ExtInstall is " + ExtInstall + " lineno 5163");
+        // Prefer sd-ext if user says so
+        if (ExtInstall) {
+            return new SdExtInstallArgs(packageURI, pkgName);
+        } else if (installOnSd(flags)) {
             String cid = getNextCodePath(null, pkgName, "/" + SdInstallArgs.RES_FILE_NAME);
             return new SdInstallArgs(packageURI, cid);
         } else if (installOnSdExt(flags)) {
+            // Very unlikely for an app to ask to be installed on sd-ext
+            // but who knows?
             return new SdExtInstallArgs(packageURI, pkgName);
         } else {
             return new FileInstallArgs(packageURI, pkgName);
