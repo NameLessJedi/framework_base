@@ -308,7 +308,8 @@ public class DefaultContainerService extends IntentService {
             String archiveFilePath, int flags) {
         boolean checkInt = false;
         boolean checkExt = false;
-        boolean checkBoth = false;
+        boolean checkSDExt = false;
+        boolean checkAll = false;
         check_inner : {
             // Check flags.
             if ((flags & PackageManager.INSTALL_FORWARD_LOCK) != 0) {
@@ -325,6 +326,11 @@ public class DefaultContainerService extends IntentService {
                 // Check external storage and return
                 checkExt = true;
                 break check_inner;
+            } else if ((flags & PackageManager.INSTALL_SDEXT) != 0) {
+                // Explicit flag to install to sdext.
+                // Check sdext storage and return
+                checkSDExt = true;
+                break check_inner;
             }
             // Check for manifest option
             if (installLocation == PackageInfo.INSTALL_LOCATION_INTERNAL_ONLY) {
@@ -332,11 +338,12 @@ public class DefaultContainerService extends IntentService {
                 break check_inner;
             } else if (installLocation == PackageInfo.INSTALL_LOCATION_PREFER_EXTERNAL) {
                 checkExt = true;
-                checkBoth = true;
+                checkAll = true;
                 break check_inner;
             } else if (installLocation == PackageInfo.INSTALL_LOCATION_AUTO) {
                 checkInt = true;
-                checkBoth = true;
+                checkSDExt = true;
+                checkAll = true;
                 break check_inner;
             }
             // Pick user preference
@@ -349,6 +356,9 @@ public class DefaultContainerService extends IntentService {
                 break check_inner;
             } else if (installPreference == PackageHelper.APP_INSTALL_EXTERNAL) {
                 checkExt = true;
+                break check_inner;
+            } else if (installPreference == PackageHelper.APP_INSTALL_SDEXT) {
+                checkSDExt = true;
                 break check_inner;
             }
             // Fall back to default policy if nothing else is specified.
@@ -368,6 +378,13 @@ public class DefaultContainerService extends IntentService {
                     (long)sdStats.getBlockSize();
             mediaAvailable = true;
         }
+        // TODO check /sd-ext is mounted
+        StatFs sdextStats = new StatFs(Environment.getSdExtDirectory().getPath());
+        long totalsdextSize = (long)sdextStats.getBlockCount() *
+            (long)sdextStats.getBlockSize();
+        long availsdextSize = (long)sdextStats.getAvailableBlocks() *
+            (long)sdextStats.getBlockSize();
+
         StatFs internalStats = new StatFs(Environment.getDataDirectory().getPath());
         long totalInternalSize = (long)internalStats.getBlockCount() *
                 (long)internalStats.getBlockSize();
@@ -385,6 +402,8 @@ public class DefaultContainerService extends IntentService {
         long reqInternalSize = 0;
         boolean intThresholdOk = (pctNandFree >= LOW_NAND_FLASH_TRESHOLD);
         boolean intAvailOk = ((reqInstallSize + reqInternalSize) < availInternalSize);
+        boolean sdextAvailOk = ((reqInstallSize + reqInternalSize) < availsdextSize);
+        boolean fitsOnSDExt = sdextAvailOk;
         boolean fitsOnSd = false;
         if (mediaAvailable && (reqInstallSize < availSDSize)) {
             // If we do not have an internal size requirement
@@ -401,13 +420,21 @@ public class DefaultContainerService extends IntentService {
             if (fitsOnInt) {
                 return PackageHelper.RECOMMEND_INSTALL_INTERNAL;
             }
+        } else if (checkSDExt) {
+            if (fitsOnSDExt) {
+                return PackageHelper.RECOMMEND_INSTALL_SDEXT;
+            }
         } else if (checkExt) {
             if (fitsOnSd) {
                 return PackageHelper.RECOMMEND_INSTALL_EXTERNAL;
             }
         }
-        if (checkBoth) {
-            // Check for internal first
+        if (checkAll) {
+            // Check for sdext first
+            if (fitsOnSDExt) {
+                return PackageHelper.RECOMMEND_INSTALL_SDEXT;
+            }
+            // Check for internal next
             if (fitsOnInt) {
                 return PackageHelper.RECOMMEND_INSTALL_INTERNAL;
             }
@@ -416,7 +443,7 @@ public class DefaultContainerService extends IntentService {
                 return PackageHelper.RECOMMEND_INSTALL_EXTERNAL;
             }
         }
-        if ((checkExt || checkBoth) && !mediaAvailable) {
+        if ((checkExt || checkAll || checkSDExt) && !mediaAvailable) {
             return PackageHelper.RECOMMEND_MEDIA_UNAVAILABLE;
         }
         return PackageHelper.RECOMMEND_FAILED_INSUFFICIENT_STORAGE;
