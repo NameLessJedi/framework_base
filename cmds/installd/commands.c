@@ -213,13 +213,18 @@ int move_dex(const char *src, const char *dst)
     char dst_dex[PKG_PATH_MAX];
 
     if (!is_valid_apk_path(src)) return -1;
+    LOGI("move_dex: src %s is valid\n", src);
     if (!is_valid_apk_path(dst)) return -1;
+    LOGI("move_dex: dst %s is valid\n", dst);
 
     if (create_cache_path(src_dex, src)) return -1;
+    LOGI("move_dex: src_dex %s created\n", src_dex);
     if (create_cache_path(dst_dex, dst)) return -1;
+    LOGI("move_dex: dst_dex %s created\n", dst_dex);
 
     LOGI("move %s -> %s\n", src_dex, dst_dex);
     if (rename(src_dex, dst_dex) < 0) {
+        LOGI("move_dex: rename failed\n");
         return -1;
     } else {
         return 0;
