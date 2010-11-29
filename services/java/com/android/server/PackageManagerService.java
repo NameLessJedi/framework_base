@@ -138,7 +138,6 @@ class PackageManagerService extends IPackageManager.Stub {
     private static final boolean DEBUG_UPGRADE = false;
     private static final boolean DEBUG_INSTALL = false;
     private static final boolean DEBUG_NATIVE = false;
-    private static final boolean DEBUG_SDEXT = true;
 
     private static final boolean MULTIPLE_APPLICATION_UIDS = true;
     private static final int RADIO_UID = Process.PHONE_UID;
@@ -233,9 +232,6 @@ class PackageManagerService extends IPackageManager.Stub {
     final File mSdExtInstallDir;
     final File mDalvikCacheDir;
     final File mSdExtDalvikCacheDir;
-
-    // Whether or not we are installing on the EXT partition.
-    boolean mExtInstall;
 
     // Directory containing the private parts (e.g. code and non-resource assets) of forward-locked
     // apps.
@@ -5126,7 +5122,6 @@ class PackageManagerService extends IPackageManager.Stub {
     private InstallArgs createInstallArgs(InstallParams params) {
         boolean ExtInstall = (getInstallLocation() == PackageHelper.APP_INSTALL_SDEXT);
         // Prefer sd-ext if user says so
-        if (DEBUG_SDEXT) Log.v("SDEXT", "ExtInstall is " + ExtInstall + " lineno 5129");
         if (ExtInstall) {
             return new SdExtInstallArgs(params);
         } else if (installOnSd(params.flags)) {
@@ -5142,7 +5137,6 @@ class PackageManagerService extends IPackageManager.Stub {
 
     private InstallArgs createInstallArgs(int flags, String fullCodePath, String fullResourcePath) {
         boolean ExtInstall = (getInstallLocation() == PackageHelper.APP_INSTALL_SDEXT);
-        if (DEBUG_SDEXT) Log.v("SDEXT", "ExtInstall is " + ExtInstall + " lineno 5145");
         // Prefer sd-ext if user says so
         if (ExtInstall) {
             return new SdExtInstallArgs(fullCodePath, fullResourcePath);
@@ -5160,7 +5154,6 @@ class PackageManagerService extends IPackageManager.Stub {
     private InstallArgs createInstallArgs(Uri packageURI, int flags,
             String pkgName) {
         boolean ExtInstall = (getInstallLocation() == PackageHelper.APP_INSTALL_SDEXT);
-        if (DEBUG_SDEXT) Log.v("SDEXT", "ExtInstall is " + ExtInstall + " lineno 5163");
         // Prefer sd-ext if user says so
         if (ExtInstall) {
             return new SdExtInstallArgs(packageURI, pkgName);
