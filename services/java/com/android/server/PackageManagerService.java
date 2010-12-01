@@ -5010,7 +5010,6 @@ class PackageManagerService extends IPackageManager.Stub {
                         // Override install location with flags
                         if (loc == PackageHelper.RECOMMEND_INSTALL_SDEXT) {
                             // Set the flag to install on sd-ext
-                            Log.i("SDEXT", "PackageManagerService: 5019");
                             flags |= PackageManager.INSTALL_SDEXT;
                             flags &= ~PackageManager.INSTALL_EXTERNAL;
                             flags &= ~PackageManager.INSTALL_INTERNAL;
@@ -5762,7 +5761,7 @@ class PackageManagerService extends IPackageManager.Stub {
             }
             return ret;
         }
-    };
+    }
 
     // Utility method used to create code paths based on package name and available index.
     private static String getNextCodePath(String oldCodePath, String prefix, String suffix) {
@@ -10204,8 +10203,10 @@ class PackageManagerService extends IPackageManager.Stub {
                                        // Set the application info flag correctly.
                                        if ((mp.flags & PackageManager.INSTALL_EXTERNAL) != 0) {
                                            pkg.applicationInfo.flags |= ApplicationInfo.FLAG_EXTERNAL_STORAGE;
+                                           pkg.applicationInfo.flags &= ~ApplicationInfo.FLAG_SDEXT_STORAGE;
                                        } else if ((mp.flags & PackageManager.INSTALL_SDEXT) != 0) {
                                            pkg.applicationInfo.flags |= ApplicationInfo.FLAG_SDEXT_STORAGE;
+                                           pkg.applicationInfo.flags &= ~ApplicationInfo.FLAG_EXTERNAL_STORAGE;
                                        } else {
                                            pkg.applicationInfo.flags &= ~ApplicationInfo.FLAG_EXTERNAL_STORAGE;
                                            pkg.applicationInfo.flags &= ~ApplicationInfo.FLAG_SDEXT_STORAGE;
