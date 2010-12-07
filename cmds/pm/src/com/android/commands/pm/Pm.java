@@ -663,8 +663,14 @@ public final class Pm {
                 // Override if -f option is specified.
                 installFlags |= PackageManager.INSTALL_INTERNAL;
             } else if (opt.equals("-e")) {
-                // Override if -e option is specified.
-                installFlags |= PackageManager.INSTALL_SDEXT;
+                if (!android.os.SystemProperties.getBoolean("cm.a2sd.active", false)) {
+                    System.err.println("Error: /sd-ext not mounted");
+                    showUsage();
+                    return;
+                } else {
+                    // Override if -e option is specified.
+                    installFlags |= PackageManager.INSTALL_SDEXT;
+                }
             } else {
                 System.err.println("Error: Unknown option: " + opt);
                 showUsage();
@@ -893,11 +899,19 @@ public final class Pm {
         System.err.println("       pm list instrumentation [-f] [TARGET-PACKAGE]");
         System.err.println("       pm list features");
         System.err.println("       pm path PACKAGE");
-        System.err.println("       pm install [-l] [-r] [-t] [-i INSTALLER_PACKAGE_NAME] [-s] [-f] [-e] PATH");
+        if (!android.os.SystemProperties.getBoolean("cm.a2sd.active", false)) {
+            System.err.println("       pm install [-l] [-r] [-t] [-i INSTALLER_PACKAGE_NAME] [-s] [-f] PATH");
+        } else {
+            System.err.println("       pm install [-l] [-r] [-t] [-i INSTALLER_PACKAGE_NAME] [-s] [-f] [-e] PATH");
+        }
         System.err.println("       pm uninstall [-k] PACKAGE");
         System.err.println("       pm enable PACKAGE_OR_COMPONENT");
         System.err.println("       pm disable PACKAGE_OR_COMPONENT");
-        System.err.println("       pm setInstallLocation [0/auto] [1/internal] [2/external] [3/sd-ext]");
+        if (!android.os.SystemProperties.getBoolean("cm.a2sd.active", false)) {
+            System.err.println("       pm setInstallLocation [0/auto] [1/internal] [2/external]");
+        } else {
+            System.err.println("       pm setInstallLocation [0/auto] [1/internal] [2/external] [3/sd-ext]");
+        }
         System.err.println("");
         System.err.println("The list packages command prints all packages.  Options:");
         System.err.println("  -f: see their associated file.");
@@ -928,7 +942,9 @@ public final class Pm {
         System.err.println("  -i: specify the installer package name.");
         System.err.println("  -s: install package on sdcard.");
         System.err.println("  -f: install package on internal flash.");
-        System.err.println("  -e: install package on sd-ext.");
+        if (android.os.SystemProperties.getBoolean("cm.a2sd.active", false)) {
+            System.err.println("  -e: install package on sd-ext.");
+        }
         System.err.println("");
         System.err.println("The uninstall command removes a package from the system. Options:");
         System.err.println("  -k: keep the data and cache directories around.");
@@ -947,6 +963,8 @@ public final class Pm {
         System.err.println("  0 [auto]    : Let system decide the best location");
         System.err.println("  1 [internal]: Install on internal device storage");
         System.err.println("  2 [external]: Install on external media");
-        System.err.println("  3 [sd-ext]  : Install on sd-ext");
+        if (android.os.SystemProperties.getBoolean("cm.a2sd.active", false)) {
+            System.err.println("  3 [sd-ext]  : Install on sd-ext");
+        }
     }
 }
