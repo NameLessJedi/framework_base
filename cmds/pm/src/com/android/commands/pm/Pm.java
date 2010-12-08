@@ -157,8 +157,8 @@ public final class Pm {
     private void runList() {
         String type = nextArg();
         if (type == null) {
-            System.err.println("Error: didn't specify type of data to list");
             showUsage();
+            System.err.println("Error: didn't specify type of data to list");
             return;
         }
         if ("package".equals(type) || "packages".equals(type)) {
@@ -172,8 +172,8 @@ public final class Pm {
         } else if ("instrumentation".equals(type)) {
             runListInstrumentation();
         } else {
-            System.err.println("Error: unknown list type '" + type + "'");
             showUsage();
+            System.err.println("Error: unknown list type '" + type + "'");
         }
     }
 
@@ -191,14 +191,14 @@ public final class Pm {
                 } else if (opt.equals("-f")) {
                     showApplicationPackage = true;
                 } else {
-                    System.err.println("Error: Unknown option: " + opt);
                     showUsage();
+                    System.err.println("Error: Unknown option: " + opt);
                     return;
                 }
             }
         } catch (RuntimeException ex) {
-            System.err.println("Error: " + ex.toString());
             showUsage();
+            System.err.println("Error: " + ex.toString());
             return;
         }
 
@@ -277,14 +277,14 @@ public final class Pm {
                 } else if (opt.charAt(0) != '-') {
                     targetPackage = opt;
                 } else {
-                    System.err.println("Error: Unknown option: " + opt);
                     showUsage();
+                    System.err.println("Error: Unknown option: " + opt);
                     return;
                 }
             }
         } catch (RuntimeException ex) {
-            System.err.println("Error: " + ex.toString());
             showUsage();
+            System.err.println("Error: " + ex.toString());
             return;
         }
 
@@ -341,9 +341,11 @@ public final class Pm {
         if (nonLocalized != null) {
             return nonLocalized.toString();
         }
-        Resources r = getResources(pii);
-        if (r != null) {
-            return r.getString(res);
+        if (res != 0) {
+            Resources r = getResources(pii);
+            if (r != null) {
+                return r.getString(res);
+            }
         }
         return null;
     }
@@ -373,8 +375,8 @@ public final class Pm {
                 } else if (opt.equals("-d")) {
                     dangerousOnly = true;
                 } else {
-                    System.err.println("Error: Unknown option: " + opt);
                     showUsage();
+                    System.err.println("Error: Unknown option: " + opt);
                     return;
                 }
             }
@@ -535,8 +537,8 @@ public final class Pm {
     private void runPath() {
         String pkg = nextArg();
         if (pkg == null) {
-            System.err.println("Error: no package specified");
             showUsage();
+            System.err.println("Error: no package specified");
             return;
         }
         displayPackageFilePath(pkg);
@@ -593,21 +595,21 @@ public final class Pm {
 
         String arg = nextArg();
         if (arg == null) {
-            System.err.println("Error: no install location specified.");
             showUsage();
+            System.err.println("Error: no install location specified.");
             return;
         }
         try {
             loc = Integer.parseInt(arg);
         } catch (NumberFormatException e) {
-            System.err.println("Error: install location has to be a number.");
             showUsage();
+            System.err.println("Error: install location has to be a number.");
             return;
         }
         try {
             if (!mPm.setInstallLocation(loc)) {
-                System.err.println("Error: install location not recognised.");
                 showUsage();
+                System.err.println("Error: install location not recognised.");
             }
         } catch (RemoteException e) {
             System.err.println(e.toString());
@@ -648,8 +650,8 @@ public final class Pm {
             } else if (opt.equals("-i")) {
                 installerPackageName = nextOptionData();
                 if (installerPackageName == null) {
-                    System.err.println("Error: no value specified for -i");
                     showUsage();
+                    System.err.println("Error: no value specified for -i");
                     return;
                 }
             } else if (opt.equals("-t")) {
@@ -661,11 +663,17 @@ public final class Pm {
                 // Override if -f option is specified.
                 installFlags |= PackageManager.INSTALL_INTERNAL;
             } else if (opt.equals("-e")) {
-                // Override if -e option is specified.
-                installFlags |= PackageManager.INSTALL_SDEXT;
+                if (!android.os.SystemProperties.getBoolean("cm.a2sd.active", false)) {
+                    showUsage();
+                    System.err.println("Error: /sd-ext not mounted");
+                    return;
+                } else {
+                    // Override if -e option is specified.
+                    installFlags |= PackageManager.INSTALL_SDEXT;
+                }
             } else {
-                System.err.println("Error: Unknown option: " + opt);
                 showUsage();
+                System.err.println("Error: Unknown option: " + opt);
                 return;
             }
         }
@@ -673,8 +681,8 @@ public final class Pm {
         String apkFilePath = nextArg();
         System.err.println("\tpkg: " + apkFilePath);
         if (apkFilePath == null) {
-            System.err.println("Error: no package specified");
             showUsage();
+            System.err.println("Error: no package specified");
             return;
         }
 
@@ -727,8 +735,8 @@ public final class Pm {
 
         String pkg = nextArg();
         if (pkg == null) {
-            System.err.println("Error: no package specified");
             showUsage();
+            System.err.println("Error: no package specified");
             return;
         }
         boolean result = deletePackage(pkg, unInstallFlags);
@@ -774,8 +782,8 @@ public final class Pm {
     private void runSetEnabledSetting(int state) {
         String pkg = nextArg();
         if (pkg == null) {
-            System.err.println("Error: no package or component specified");
             showUsage();
+            System.err.println("Error: no package or component specified");
             return;
         }
         ComponentName cn = ComponentName.unflattenFromString(pkg);
@@ -891,11 +899,19 @@ public final class Pm {
         System.err.println("       pm list instrumentation [-f] [TARGET-PACKAGE]");
         System.err.println("       pm list features");
         System.err.println("       pm path PACKAGE");
-        System.err.println("       pm install [-l] [-r] [-t] [-i INSTALLER_PACKAGE_NAME] [-s] [-f] [-e] PATH");
+        if (!android.os.SystemProperties.getBoolean("cm.a2sd.active", false)) {
+            System.err.println("       pm install [-l] [-r] [-t] [-i INSTALLER_PACKAGE_NAME] [-s] [-f] PATH");
+        } else {
+            System.err.println("       pm install [-l] [-r] [-t] [-i INSTALLER_PACKAGE_NAME] [-s] [-f] [-e] PATH");
+        }
         System.err.println("       pm uninstall [-k] PACKAGE");
         System.err.println("       pm enable PACKAGE_OR_COMPONENT");
         System.err.println("       pm disable PACKAGE_OR_COMPONENT");
-        System.err.println("       pm setInstallLocation [0/auto] [1/internal] [2/external] [3/sd-ext]");
+        if (!android.os.SystemProperties.getBoolean("cm.a2sd.active", false)) {
+            System.err.println("       pm setInstallLocation [0/auto] [1/internal] [2/external]");
+        } else {
+            System.err.println("       pm setInstallLocation [0/auto] [1/internal] [2/external] [3/sd-ext]");
+        }
         System.err.println("");
         System.err.println("The list packages command prints all packages.  Options:");
         System.err.println("  -f: see their associated file.");
@@ -925,8 +941,10 @@ public final class Pm {
         System.err.println("  -t: allow test .apks to be installed.");
         System.err.println("  -i: specify the installer package name.");
         System.err.println("  -s: install package on sdcard.");
-        System.err.println("  -e: install package on /sd-ext.");
         System.err.println("  -f: install package on internal flash.");
+        if (android.os.SystemProperties.getBoolean("cm.a2sd.active", false)) {
+            System.err.println("  -e: install package on sd-ext.");
+        }
         System.err.println("");
         System.err.println("The uninstall command removes a package from the system. Options:");
         System.err.println("  -k: keep the data and cache directories around.");
@@ -939,12 +957,15 @@ public final class Pm {
         System.err.println("  0 [auto]    : Let system decide the best location");
         System.err.println("  1 [internal]: Install on internal device storage");
         System.err.println("  2 [external]: Install on external media");
-        System.err.println("  3 [sd-ext]  : Install on /sd-ext partition");
+        System.err.println("  3 [sd-ext]  : Install on sd-ext");
         System.err.println("");
         System.err.println("The setInstallLocation command changes the default install location");
         System.err.println("  0 [auto]    : Let system decide the best location");
         System.err.println("  1 [internal]: Install on internal device storage");
         System.err.println("  2 [external]: Install on external media");
-        System.err.println("  3 [sd-ext]  : Install on /sd-ext partition");
+        if (android.os.SystemProperties.getBoolean("cm.a2sd.active", false)) {
+            System.err.println("  3 [sd-ext]  : Install on sd-ext");
+        }
+        System.err.println("");
     }
 }

@@ -173,7 +173,7 @@ public class PackageInfo implements Parcelable {
      */
     public static final int INSTALL_LOCATION_PREFER_EXTERNAL = 2;
     /**
-     * Constant corresponding to <code>preferSDExt</code> in
+     * Constant corresponding to <code>preferSdext</code> in
      * the {@link android.R.attr#installLocation} attribute.
      * @hide
      */
@@ -187,7 +187,7 @@ public class PackageInfo implements Parcelable {
      * {@link #INSTALL_LOCATION_PREFER_SDEXT}
      * @hide
      */
-    public int installLocation = INSTALL_LOCATION_PREFER_SDEXT;
+    public int installLocation = INSTALL_LOCATION_INTERNAL_ONLY;
     
     public PackageInfo() {
     }

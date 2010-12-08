@@ -670,7 +670,8 @@ class PackageManagerService extends IPackageManager.Stub {
     
     static boolean installOnSd(int flags) {
         if (((flags & PackageManager.INSTALL_FORWARD_LOCK) != 0) ||
-                ((flags & PackageManager.INSTALL_INTERNAL) != 0)) {
+                ((flags & PackageManager.INSTALL_INTERNAL) != 0) ||
+                ((flags & PackageManager.INSTALL_SDEXT) != 0)) {
             return false;
         }
         if ((flags & PackageManager.INSTALL_EXTERNAL) != 0) {
@@ -976,8 +977,9 @@ class PackageManagerService extends IPackageManager.Stub {
                     }
                 }
             }
-            
+
             mAppInstallDir = new File(dataDir, "app");
+
             if (mInstaller == null) {
                 // Make sure these dirs exist, when we are running in
                 // the simulator.
@@ -4974,7 +4976,7 @@ class PackageManagerService extends IPackageManager.Stub {
             boolean onInt = (flags & PackageManager.INSTALL_INTERNAL) != 0;
             boolean onSdext = (flags & PackageManager.INSTALL_SDEXT) != 0;
             if (onInt && onSd) {
-                // Check if only one bit is set.
+                // Check only one bit is set.
                 Slog.w(TAG, "Conflicting flags specified for installing on both internal and external");
                 ret = PackageManager.INSTALL_FAILED_INVALID_INSTALL_LOCATION;
             } else if (onInt && onSdext) {
@@ -5120,15 +5122,9 @@ class PackageManagerService extends IPackageManager.Stub {
     }
 
     private InstallArgs createInstallArgs(InstallParams params) {
-        boolean ExtInstall = (getInstallLocation() == PackageHelper.APP_INSTALL_SDEXT);
-        // Prefer sd-ext if user says so
-        if (ExtInstall) {
-            return new SdExtInstallArgs(params);
-        } else if (installOnSd(params.flags)) {
+        if (installOnSd(params.flags)) {
             return new SdInstallArgs(params);
         } else if (installOnSdExt(params.flags)) {
-            // Very unlikely for an app to ask to be installed on sd-ext
-            // but who knows?
             return new SdExtInstallArgs(params);
         } else {
             return new FileInstallArgs(params);
@@ -5136,15 +5132,9 @@ class PackageManagerService extends IPackageManager.Stub {
     }
 
     private InstallArgs createInstallArgs(int flags, String fullCodePath, String fullResourcePath) {
-        boolean ExtInstall = (getInstallLocation() == PackageHelper.APP_INSTALL_SDEXT);
-        // Prefer sd-ext if user says so
-        if (ExtInstall) {
-            return new SdExtInstallArgs(fullCodePath, fullResourcePath);
-        } else if (installOnSd(flags)) {
+        if (installOnSd(flags)) {
             return new SdInstallArgs(fullCodePath, fullResourcePath);
         } else if (installOnSdExt(flags)) {
-            // Very unlikely for an app to ask to be installed on sd-ext
-            // but who knows?
             return new SdExtInstallArgs(fullCodePath, fullResourcePath);
         } else {
             return new FileInstallArgs(fullCodePath, fullResourcePath);
@@ -5153,16 +5143,10 @@ class PackageManagerService extends IPackageManager.Stub {
 
     private InstallArgs createInstallArgs(Uri packageURI, int flags,
             String pkgName) {
-        boolean ExtInstall = (getInstallLocation() == PackageHelper.APP_INSTALL_SDEXT);
-        // Prefer sd-ext if user says so
-        if (ExtInstall) {
-            return new SdExtInstallArgs(packageURI, pkgName);
-        } else if (installOnSd(flags)) {
+        if (installOnSd(flags)) {
             String cid = getNextCodePath(null, pkgName, "/" + SdInstallArgs.RES_FILE_NAME);
             return new SdInstallArgs(packageURI, cid);
         } else if (installOnSdExt(flags)) {
-            // Very unlikely for an app to ask to be installed on sd-ext
-            // but who knows?
             return new SdExtInstallArgs(packageURI, pkgName);
         } else {
             return new FileInstallArgs(packageURI, pkgName);
@@ -5397,7 +5381,6 @@ class PackageManagerService extends IPackageManager.Stub {
         }
     }
 
-
     class SdExtInstallArgs extends InstallArgs {
         File installDir;
         String codeFileName;
@@ -5555,7 +5538,7 @@ class PackageManagerService extends IPackageManager.Stub {
                 if (publicSourceFile.exists()) {
                     publicSourceFile.delete();
                 }
-            }
+           }
             return ret;
         }
 
@@ -5778,7 +5761,7 @@ class PackageManagerService extends IPackageManager.Stub {
             }
             return ret;
         }
-    };
+    }
 
     // Utility method used to create code paths based on package name and available index.
     private static String getNextCodePath(String oldCodePath, String prefix, String suffix) {

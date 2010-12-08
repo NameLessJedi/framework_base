@@ -267,9 +267,9 @@ public abstract class PackageManager {
     */
    public static final int INSTALL_INTERNAL = 0x00000010;
 
-   /**
+    /**
     * Flag parameter for {@link #installPackage} to indicate that this
-    * package has to installed on the /sd-ext partition.
+    * package has to be installed on the sdext.
     * @hide
     */
    public static final int INSTALL_SDEXT = 0x00000020;
@@ -633,11 +633,10 @@ public abstract class PackageManager {
 
     /**
      * Flag parameter for {@link #movePackage} to indicate that
-     * the package should be moved to SD-Ext
+     * the package should be moved to sd-ext.
      * @hide
      */
     public static final int MOVE_SDEXT = 0x00000004;
-
     /**
      * Feature for {@link #getSystemAvailableFeatures} and
      * {@link #hasSystemFeature}: The device is capable of communicating with
