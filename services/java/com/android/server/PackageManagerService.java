@@ -680,7 +680,7 @@ class PackageManagerService extends IPackageManager.Stub {
         return false;
     }
 
-    static boolean installOnSdExt(int flags) {
+    boolean installOnSdExt(int flags) {
         if ((flags & PackageManager.INSTALL_SDEXT) != 0 ||
             (getInstallLocation() == PackageHelper.APP_INSTALL_SDEXT)) {
             return true;
