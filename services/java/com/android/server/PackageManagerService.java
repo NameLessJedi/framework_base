@@ -681,8 +681,7 @@ class PackageManagerService extends IPackageManager.Stub {
     }
 
     static boolean installOnSdExt(int flags) {
-        if ((flags & PackageManager.INSTALL_SDEXT) != 0 ||
-            (getInstallLocation() == PackageHelper.APP_INSTALL_SDEXT)) {
+        if ((flags & PackageManager.INSTALL_SDEXT) != 0) {
             return true;
         }
         return false;
@@ -5123,20 +5122,20 @@ class PackageManagerService extends IPackageManager.Stub {
     }
 
     private InstallArgs createInstallArgs(InstallParams params) {
-        if (installOnSdExt(params.flags)) {
-            return new SdExtInstallArgs(params);
-        } else if (installOnSd(params.flags)) {
+        if (installOnSd(params.flags)) {
             return new SdInstallArgs(params);
+        } else if (installOnSdExt(params.flags)) {
+            return new SdExtInstallArgs(params);
         } else {
             return new FileInstallArgs(params);
         }
     }
 
     private InstallArgs createInstallArgs(int flags, String fullCodePath, String fullResourcePath) {
-        if (installOnSdExt(flags)) {
-            return new SdExtInstallArgs(fullCodePath, fullResourcePath);
-        } else if (installOnSd(flags)) {
+        if (installOnSd(flags)) {
             return new SdInstallArgs(fullCodePath, fullResourcePath);
+        } else if (installOnSdExt(flags)) {
+            return new SdExtInstallArgs(fullCodePath, fullResourcePath);
         } else {
             return new FileInstallArgs(fullCodePath, fullResourcePath);
         }
@@ -5144,11 +5143,11 @@ class PackageManagerService extends IPackageManager.Stub {
 
     private InstallArgs createInstallArgs(Uri packageURI, int flags,
             String pkgName) {
-        if (installOnSdExt(flags)) {
-            return new SdExtInstallArgs(packageURI, pkgName);
-        } else if (installOnSd(flags)) {
+        if (installOnSd(flags)) {
             String cid = getNextCodePath(null, pkgName, "/" + SdInstallArgs.RES_FILE_NAME);
             return new SdInstallArgs(packageURI, cid);
+        } else if (installOnSdExt(flags)) {
+            return new SdExtInstallArgs(packageURI, pkgName);
         } else {
             return new FileInstallArgs(packageURI, pkgName);
         }
