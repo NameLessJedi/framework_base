@@ -415,14 +415,16 @@ public class DefaultContainerService extends IntentService {
             }
         }
         boolean fitsOnInt = intThresholdOk && intAvailOk;
-        if (checkInt) {
+        if (checkSDExt) {
+            // APK will not ask for SDExt so user either prefered it or
+            // doesn't care (installLocation set to auto)
+            if (fitsOnSDExt) {
+                return PackageHelper.RECOMMEND_INSTALL_SDEXT;
+            }
+        } else if (checkInt) {
             // Check for internal memory availability
             if (fitsOnInt) {
                 return PackageHelper.RECOMMEND_INSTALL_INTERNAL;
-            }
-        } else if (checkSDExt) {
-            if (fitsOnSDExt) {
-                return PackageHelper.RECOMMEND_INSTALL_SDEXT;
             }
         } else if (checkExt) {
             if (fitsOnSd) {
