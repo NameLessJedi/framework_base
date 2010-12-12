@@ -4991,8 +4991,10 @@ class PackageManagerService extends IPackageManager.Stub {
                 ret = PackageManager.INSTALL_FAILED_INVALID_INSTALL_LOCATION;
             } else {
                 // Remote call to find out default install location
+                Slog.w("NLJ", "hSC 1 flags " + flags);
                 PackageInfoLite pkgLite = mContainerService.getMinimalPackageInfo(packageURI, flags);
                 int loc = pkgLite.recommendedInstallLocation;
+                Slog.w("NLJ", "hSC 2 recommendedInstallLocation " + loc);
                 if (loc == PackageHelper.RECOMMEND_FAILED_INVALID_LOCATION){
                     ret = PackageManager.INSTALL_FAILED_INVALID_INSTALL_LOCATION;
                 } else if (loc == PackageHelper.RECOMMEND_FAILED_ALREADY_EXISTS){
@@ -5006,6 +5008,7 @@ class PackageManagerService extends IPackageManager.Stub {
                 } else {
                     // Override with defaults if needed.
                     loc = installLocationPolicy(pkgLite, flags);
+                    Slog.w("NLJ", "hSC 3 installLocationPolicy " + loc);
                     if (!onSd && !onInt && !onSdext) {
                         // Override install location with flags
                         if (loc == PackageHelper.RECOMMEND_INSTALL_SDEXT) {
@@ -5122,6 +5125,7 @@ class PackageManagerService extends IPackageManager.Stub {
     }
 
     private InstallArgs createInstallArgs(InstallParams params) {
+        Slog.w("NLJ", "cIA 1 flags" + params.flags);
         if (installOnSd(params.flags)) {
             return new SdInstallArgs(params);
         } else if (installOnSdExt(params.flags)) {
@@ -5132,6 +5136,8 @@ class PackageManagerService extends IPackageManager.Stub {
     }
 
     private InstallArgs createInstallArgs(int flags, String fullCodePath, String fullResourcePath) {
+        Slog.w("NLJ", "cIA 2 flags" + flags);
+        Slog.w("NLJ", "cIA 3 CodePath" + fullCodePath + " ResPath " + fullResourcePath);
         if (installOnSd(flags)) {
             return new SdInstallArgs(fullCodePath, fullResourcePath);
         } else if (installOnSdExt(flags)) {
@@ -5143,6 +5149,7 @@ class PackageManagerService extends IPackageManager.Stub {
 
     private InstallArgs createInstallArgs(Uri packageURI, int flags,
             String pkgName) {
+        Slog.w("NLJ", " cIA 4 flags " + flags + " pkg " + pkgName);
         if (installOnSd(flags)) {
             String cid = getNextCodePath(null, pkgName, "/" + SdInstallArgs.RES_FILE_NAME);
             return new SdInstallArgs(packageURI, cid);

@@ -126,7 +126,7 @@ public class DefaultContainerService extends IntentService {
             PackageParser.PackageLite pkg = packageParser.parsePackageLite(
                     archiveFilePath, 0);
             ret.packageName = pkg.packageName;
-            ret.installLocation = pkg.installLocation;
+            ret.installLocation = pkg.installLocation; // value from manifest or -1 NLJ
             // Nuke the parser reference right away and force a gc
             packageParser = null;
             Runtime.getRuntime().gc();
