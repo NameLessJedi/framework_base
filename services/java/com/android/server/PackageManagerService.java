@@ -1005,7 +1005,7 @@ class PackageManagerService extends IPackageManager.Stub {
             mSdExtInstallObserver = new AppDirObserver(
                 mSdExtInstallDir.getPath(), OBSERVER_EVENTS, false);
             mSdExtInstallObserver.startWatching();
-            scanDirLI(mSdExtInstallDir, 0, scanMode);
+            scanDirLI(mSdExtInstallDir, PackageParser.PARSE_ON_SDEXT, scanMode);
 
             mDrmAppInstallObserver = new AppDirObserver(
                 mDrmAppPrivateInstallDir.getPath(), OBSERVER_EVENTS, false);
@@ -1014,7 +1014,7 @@ class PackageManagerService extends IPackageManager.Stub {
 
             mDrmSdExtInstallObserver = new AppDirObserver(
                 mDrmSdExtPrivateInstallDir.getPath(), OBSERVER_EVENTS, false);
-            scanDirLI(mDrmSdExtPrivateInstallDir, PackageParser.PARSE_FORWARD_LOCK, scanMode);
+            scanDirLI(mDrmSdExtPrivateInstallDir, PackageParser.PARSE_FORWARD_LOCK & PackageParser.PARSE_ON_SDEXT, scanMode);
             mDrmSdExtInstallObserver.startWatching();
 
             EventLog.writeEvent(EventLogTags.BOOT_PROGRESS_PMS_SCAN_END,
