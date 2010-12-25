@@ -126,7 +126,8 @@ public class DefaultContainerService extends IntentService {
             PackageParser.PackageLite pkg = packageParser.parsePackageLite(
                     archiveFilePath, 0);
             ret.packageName = pkg.packageName;
-            ret.installLocation = pkg.installLocation; // value from manifest or -1 NLJ
+            // value from manifest or -1
+            ret.installLocation = pkg.installLocation;
             // Nuke the parser reference right away and force a gc
             packageParser = null;
             Runtime.getRuntime().gc();
@@ -310,10 +311,17 @@ public class DefaultContainerService extends IntentService {
         boolean checkExt = false;
         boolean checkSDExt = false;
         boolean checkAll = false;
+        // get users prefered install location
+        int installPreference = Settings.System.getInt(getApplicationContext()
+                .getContentResolver(),
+                Settings.Secure.DEFAULT_INSTALL_LOCATION,
+                PackageHelper.APP_INSTALL_AUTO);
         check_inner : {
             // Check flags.
             if ((flags & PackageManager.INSTALL_FORWARD_LOCK) != 0) {
                 // Check for forward locked app
+                // TODO check sd-ext is mounted
+                checkSDExt = true;
                 checkInt = true;
                 break check_inner;
             } else if ((flags & PackageManager.INSTALL_INTERNAL) != 0) {
@@ -334,23 +342,24 @@ public class DefaultContainerService extends IntentService {
             }
             // Check for manifest option
             if (installLocation == PackageInfo.INSTALL_LOCATION_INTERNAL_ONLY) {
+                // TODO check sd-ext is mounted
+                if (installPreference == PackageHelper.APP_INSTALL_SDEXT) {
+                    checkSDExt = true;
+                }
                 checkInt = true;
                 break check_inner;
             } else if (installLocation == PackageInfo.INSTALL_LOCATION_PREFER_EXTERNAL) {
+                if (installPreference == PackageHelper.APP_INSTALL_SDEXT) {
+                    checkSDExt = true;
+                }
                 checkExt = true;
                 checkAll = true;
                 break check_inner;
             } else if (installLocation == PackageInfo.INSTALL_LOCATION_AUTO) {
-                checkInt = true;
-                checkSDExt = true;
                 checkAll = true;
                 break check_inner;
             }
             // Pick user preference
-            int installPreference = Settings.System.getInt(getApplicationContext()
-                    .getContentResolver(),
-                    Settings.Secure.DEFAULT_INSTALL_LOCATION,
-                    PackageHelper.APP_INSTALL_AUTO);
             if (installPreference == PackageHelper.APP_INSTALL_INTERNAL) {
                 checkInt = true;
                 break check_inner;
@@ -415,9 +424,13 @@ public class DefaultContainerService extends IntentService {
             }
         }
         boolean fitsOnInt = intThresholdOk && intAvailOk;
+        if (installPreference == PackageHelper.APP_INSTALL_SDEXT) {
+            if (fitsOnSDExt) {
+                checkInt = false;
+                return PackageHelper.RECOMMEND_INSTALL_SDEXT;
+            }
+        }
         if (checkSDExt) {
-            // APK will not ask for SDExt so user either prefered it or
-            // doesn't care (installLocation set to auto)
             if (fitsOnSDExt) {
                 return PackageHelper.RECOMMEND_INSTALL_SDEXT;
             }
@@ -471,13 +484,25 @@ public class DefaultContainerService extends IntentService {
         long availInternalSize = (long)internalStats.getAvailableBlocks() *
         (long)internalStats.getBlockSize();
 
+        StatFs sdextStats = new StatFs(Environment.getSdExtDirectory().getPath());
+        long totalsdextSize = (long)sdextStats.getBlockCount() *
+        (long)sdextStats.getBlockSize();
+        long availsdextSize = (long)sdextStats.getAvailableBlocks() *
+        (long)sdextStats.getBlockSize();
         double pctNandFree = (double)availInternalSize / (double)totalInternalSize;
+
         // To make final copy
         long reqInstallSize = size;
         // For dex files. Just ignore and fail when extracting. Max limit of 2Gig for now.
         long reqInternalSize = 0;
         boolean intThresholdOk = (pctNandFree >= LOW_NAND_FLASH_TRESHOLD);
         boolean intAvailOk = ((reqInstallSize + reqInternalSize) < availInternalSize);
-        return intThresholdOk && intAvailOk;
+        boolean sdextAvailOk = ((reqInstallSize + reqInternalSize) < availsdextSize);
+        // hack to work out if we are moving to sd-ext or data
+        if (packageURI.getPath().substring(0,8).equals("/sd-ext")) {
+            return intThresholdOk && intAvailOk;
+        } else {
+            return sdextAvailOk;
+        }
     }
 }
