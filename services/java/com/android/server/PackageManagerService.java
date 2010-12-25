@@ -6175,7 +6175,7 @@ class PackageManagerService extends IPackageManager.Stub {
         File tmpPackageFile = new File(args.getCodePath());
         boolean forwardLocked = ((pFlags & PackageManager.INSTALL_FORWARD_LOCK) != 0);
         boolean onSd = ((pFlags & PackageManager.INSTALL_EXTERNAL) != 0);
-        boolean onSdext = ((pGlags & PackageManager.INSTALL_SDEXT) != 0);
+        boolean onSdext = ((pFlags & PackageManager.INSTALL_SDEXT) != 0);
         boolean replace = false;
         int scanMode = (onSd ? 0 : SCAN_MONITOR) | SCAN_FORCE_DEX | SCAN_UPDATE_SIGNATURE
                 | (newInstall ? SCAN_NEW_INSTALL : 0);
