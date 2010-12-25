@@ -4912,9 +4912,14 @@ class PackageManagerService extends IPackageManager.Stub {
             int installLocation = pkgLite.installLocation;
             boolean onSd = (flags & PackageManager.INSTALL_EXTERNAL) != 0;
             boolean onSdext = (flags & PackageManager.INSTALL_SDEXT) != 0;
+            Slog.i("NLJ", "packagename " + packageName);
+            Slog.i("NLJ", "INSTALL_SDEXT " + PackageManager.INSTALL_SDEXT);
+            Slog.i("NLJ", "onSd is " + onSd + " onSdext is "+ onSdext);
+            Slog.i("NLJ", "flags are " + Integer.toHexString(flags) + " installLocation is " + installLocation);
             synchronized (mPackages) {
                 PackageParser.Package pkg = mPackages.get(packageName);
                 if (pkg != null) {
+                    Slog.i("NLJ", "pkg.applicationInfo.flags " + Integer.toHexString(pkg.applicationInfo.flags));
                     if ((flags & PackageManager.INSTALL_REPLACE_EXISTING) != 0) {
                         // Check for updated system application.
                         if ((pkg.applicationInfo.flags & ApplicationInfo.FLAG_SYSTEM) != 0) {
@@ -4941,9 +4946,15 @@ class PackageManagerService extends IPackageManager.Stub {
                                 return PackageHelper.RECOMMEND_INSTALL_SDEXT;
                             } else {
                                 // Prefer previous location
+                                Slog.i("NLJ", "pkg.applicationInfo.flags="+Integer.toHexString(pkg.applicationInfo.flags));
+                                Slog.i("NLJ", "FLAG_EXTERNAL_STORAGE="+Integer.toHexString(ApplicationInfo.FLAG_EXTERNAL_STORAGE));
+                                Slog.i("NLJ", "FLAG_SDEXT_STORAGE="+Integer.toHexString(ApplicationInfo.FLAG_SDEXT_STORAGE));
+                                Slog.i("NLJ", "pkgLite.recommendedInstallLocation="+pkgLite.recommendedInstallLocation);
                                 if ((pkg.applicationInfo.flags & ApplicationInfo.FLAG_EXTERNAL_STORAGE) != 0) {
                                     return PackageHelper.RECOMMEND_INSTALL_EXTERNAL;
-                                }
+                                } else if ((pkg.applicationInfo.flags & ApplicationInfo.FLAG_SDEXT_STORAGE) != 0) {
+                                    return PackageHelper.RECOMMEND_INSTALL_SDEXT;
+                                } else
                                 return PackageHelper.RECOMMEND_INSTALL_INTERNAL;
                             }
                         }
@@ -4975,6 +4986,9 @@ class PackageManagerService extends IPackageManager.Stub {
             boolean onSd = (flags & PackageManager.INSTALL_EXTERNAL) != 0;
             boolean onInt = (flags & PackageManager.INSTALL_INTERNAL) != 0;
             boolean onSdext = (flags & PackageManager.INSTALL_SDEXT) != 0;
+            Slog.w("NLJ", "hSC flags="+flags);
+            Slog.w("NLJ", "hSC onSd="+onSd+" onInt="+onInt+" onSdext="+onSdext);
+            Slog.w("NLJ", "hSC fwdLocked="+fwdLocked);
             if (onInt && onSd) {
                 // Check only one bit is set.
                 Slog.w(TAG, "Conflicting flags specified for installing on both internal and external");
@@ -5841,6 +5855,17 @@ class PackageManagerService extends IPackageManager.Stub {
         return codePath.substring(sidx+1, eidx);
     }
 
+    // get the first element of path
+    // e.g /sd-ext/app-private/com.test-1.apk returns /sd-ext
+    // /data/app-private/com.test-1.apk returns /data
+    static String getApkLoc(String codePath) {
+        if (codePath == null) {
+            return null;
+        }
+        int idx = codePath.substring(0, codePath.lastIndexOf('/')).lastIndexOf('/');
+        return codePath.substring(0, idx);
+    }
+
     class PackageInstalledInfo {
         String name;
         int uid;
@@ -6256,8 +6281,13 @@ class PackageManagerService extends IPackageManager.Stub {
                 //TODO clean up the extracted public files
             }
             if (mInstaller != null) {
-                retCode = mInstaller.setForwardLockPerm(getApkName(newPackage.mPath),
-                        newPackage.applicationInfo.uid);
+                if (getApkLoc(newPackage.mPath).equals("/sd-ext")) {
+                    retCode = mInstaller.setForwardLockPermExt(getApkName(newPackage.mPath),
+                            newPackage.applicationInfo.uid);
+                } else {
+                    retCode = mInstaller.setForwardLockPerm(getApkName(newPackage.mPath),
+                            newPackage.applicationInfo.uid);
+                }
             } else {
                 final int filePermissions =
                         FileUtils.S_IRUSR|FileUtils.S_IWUSR|FileUtils.S_IRGRP;

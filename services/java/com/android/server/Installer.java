@@ -252,13 +252,16 @@ class Installer {
      * @param packagePathSuffix The name of the path relative to install
      * directory. Say if the path name is /data/app/com.test-1.apk,
      * the package suffix path will be com.test-1
+     * SdExt is 1 if apps should be installed on SDExt partition
      */
-    public int setForwardLockPerm(String packagePathSuffix, int gid) {
+    public int setForwardLockPerm(String packagePathSuffix, int gid, int SdExt) {
         StringBuilder builder = new StringBuilder("protect");
         builder.append(' ');
         builder.append(packagePathSuffix);
         builder.append(' ');
         builder.append(gid);
+        builder.append(' ');
+        builder.append(SdExt);
         return execute(builder.toString());
     }
     
