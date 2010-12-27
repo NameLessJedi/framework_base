@@ -10132,7 +10132,7 @@ class PackageManagerService extends IPackageManager.Stub {
                    returnCode = PackageManager.MOVE_FAILED_SYSTEM_PACKAGE;
                } else if (pkg.applicationInfo != null &&
                        (pkg.applicationInfo.flags & ApplicationInfo.FLAG_FORWARD_LOCK) != 0 &&
-                       (flags & PackageMnager.MOVE_SDEXT) == 0 ) {
+                       (flags & PackageManager.MOVE_SDEXT) == 0 ) {
                    Slog.w(TAG, "Cannot move forward locked app.");
                    returnCode = PackageManager.MOVE_FAILED_FORWARD_LOCKED;
                } else {
