@@ -6012,9 +6012,11 @@ class PackageManagerService extends IPackageManager.Stub {
                 }
                 // Parse old package
                 boolean oldOnSd = isExternal(deletedPackage);
+                boolean oldOnSdExt = isSdExt(deletedPackage);
                 int oldParseFlags  = mDefParseFlags | PackageParser.PARSE_CHATTY |
                         (isForwardLocked(deletedPackage) ? PackageParser.PARSE_FORWARD_LOCK : 0) |
-                        (oldOnSd ? PackageParser.PARSE_ON_SDCARD : 0);
+                        (oldOnSd ? PackageParser.PARSE_ON_SDCARD : 0) |
+                        (oldOnSdExt ? PackageParser.PARSE_ON_SDEXT : 0 );
                 int oldScanMode = (oldOnSd ? 0 : SCAN_MONITOR) | SCAN_UPDATE_SIGNATURE;
                 if (scanPackageLI(restoreFile, oldParseFlags, oldScanMode) == null) {
                     Slog.e(TAG, "Failed to restore package : " + pkgName + " after failed upgrade");
@@ -6255,6 +6257,7 @@ class PackageManagerService extends IPackageManager.Stub {
         // Set application objects path explicitly after the rename
         setApplicationInfoPaths(pkg, args.getCodePath(), args.getResourcePath());
         if (replace) {
+            Slog.w("NLJ", "parseFlags = " + Integer.toHexString(parseFlags) + " scanMode = " + Integer.toHexString(scanMode) + " installerPackageName " + installerPackageName);
             replacePackageLI(pkg, parseFlags, scanMode,
                     installerPackageName, res);
         } else {
@@ -6385,13 +6388,23 @@ class PackageManagerService extends IPackageManager.Stub {
                 return name.startsWith("vmdl") && name.endsWith(".tmp");
             }
         };
+
         String tmpFilesList[] = mAppInstallDir.list(filter);
-        if(tmpFilesList == null) {
+        String tmpSdExtFilesList[] = mSdExtInstallDir.list(filter);
+        if(tmpFilesList == null && tmpSdExtFilesList == null) {
             return;
         }
-        for(int i = 0; i < tmpFilesList.length; i++) {
-            File tmpFile = new File(mAppInstallDir, tmpFilesList[i]);
-            tmpFile.delete();
+        if(tmpFilesList != null) {
+            for(int i = 0; i < tmpFilesList.length; i++) {
+                File tmpFile = new File(mAppInstallDir, tmpFilesList[i]);
+                tmpFile.delete();
+            }
+        }
+        if(tmpSdExtFilesList != null) {
+            for(int i = 0; i < tmpSdExtFilesList.length; i++) {
+                File tmpFile = new File(mSdExtInstallDir, tmpSdExtFilesList[i]);
+                tmpFile.delete();
+            }
         }
     }
 
