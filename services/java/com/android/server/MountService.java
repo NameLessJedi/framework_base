@@ -52,10 +52,10 @@ import java.util.HashSet;
 class MountService extends IMountService.Stub
         implements INativeDaemonConnectorCallbacks {
     private static final boolean LOCAL_LOGD = false;
-    private static final boolean DEBUG_UNMOUNT = false;
-    private static final boolean DEBUG_EVENTS = false;
+    private static final boolean DEBUG_UNMOUNT = true;
+    private static final boolean DEBUG_EVENTS = true;
     
-    private static final String TAG = "MountService";
+    private static final String TAG = "MountService-NLJ";
 
     /*
      * Internal vold volume state constants
@@ -308,13 +308,14 @@ class MountService extends IMountService.Stub
                 }
                 new Thread() {
                     public void run() {
-                        ArrayList<String> volumesToMount = getShareableVolumes();
+                        ArrayList<String> volumesToMount = getShareableVolumes(false);
 
                         for (String path: volumesToMount) {
                             try {
                                 String state = getVolumeState(path);
 
                                 if (state.equals(Environment.MEDIA_UNMOUNTED)) {
+                                    Slog.i(TAG, "About to doMountVolume(" + path + ")");
                                     int rc = doMountVolume(path);
                                     if (rc != StorageResultCode.OperationSucceeded) {
                                         Slog.e(TAG, String.format("Boot-time mount failed (%d)", rc));
@@ -856,7 +857,7 @@ class MountService extends IMountService.Stub
             /*
              * USB mass storage disconnected while enabled
              */
-            final ArrayList<String> volumes = getShareableVolumes();
+            final ArrayList<String> volumes = getShareableVolumes(true);
             new Thread() {
                 public void run() {
                     try {
@@ -1027,12 +1028,16 @@ class MountService extends IMountService.Stub
         return doGetShareMethodAvailable("ums");
     }
 
-    private ArrayList<String> getShareableVolumes() {
+    private ArrayList<String> getShareableVolumes(boolean shareable) {
+        // Do not share /sd-ext
         // build.prop will specify additional volumes to mount in the
         // ro.additionalmounts property.
         // This is a semicolon delimited list of paths. Such as "/emmc;/foo", etc.
         ArrayList<String> volumesToMount = new ArrayList<String>();
         volumesToMount.add(Environment.getExternalStorageDirectory().getPath());
+        if (!shareable) {
+            volumesToMount.add(Environment.getSdExtDirectory().getPath());
+        }
         String additionalVolumesProperty = SystemProperties.get("ro.additionalmounts");
         if (null != additionalVolumesProperty) {
             String[] additionalVolumes = additionalVolumesProperty.split(";");
@@ -1049,7 +1054,7 @@ class MountService extends IMountService.Stub
         waitForReady();
         validatePermission(android.Manifest.permission.MOUNT_UNMOUNT_FILESYSTEMS);
 
-        ArrayList<String> volumesToShare = getShareableVolumes();
+        ArrayList<String> volumesToShare = getShareableVolumes(true);
 
         for (String path: volumesToShare) {
             /*
