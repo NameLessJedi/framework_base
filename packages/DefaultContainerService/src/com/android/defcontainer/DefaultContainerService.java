@@ -379,7 +379,9 @@ public class DefaultContainerService extends IntentService {
         // Else install on internal NAND flash, unless space on NAND is less than 10%
         String status = Environment.getExternalStorageState();
         long availSDSize = -1;
+        long availSdExtSize = -1;
         boolean mediaAvailable = false;
+        boolean sdextAvailable = false;
         if (status.equals(Environment.MEDIA_MOUNTED)) {
             StatFs sdStats = new StatFs(
                     Environment.getExternalStorageDirectory().getPath());
@@ -387,12 +389,14 @@ public class DefaultContainerService extends IntentService {
                     (long)sdStats.getBlockSize();
             mediaAvailable = true;
         }
-        // TODO check /sd-ext is mounted
-        StatFs sdextStats = new StatFs(Environment.getSdExtDirectory().getPath());
-        long totalsdextSize = (long)sdextStats.getBlockCount() *
-            (long)sdextStats.getBlockSize();
-        long availsdextSize = (long)sdextStats.getAvailableBlocks() *
-            (long)sdextStats.getBlockSize();
+        status = Environment.getSdExtState();
+        if (status.equals(Environment.MEDIA_MOUNTED)) {
+            StatFs sdextStats = new StatFs(
+                    Environment.getSdExtDirectory().getPath());
+            availsdextSize = (long)sdextStats.getAvailableBlocks() *
+                (long)sdextStats.getBlockSize();
+            sdextAvailable = true;
+        }
 
         StatFs internalStats = new StatFs(Environment.getDataDirectory().getPath());
         long totalInternalSize = (long)internalStats.getBlockCount() *
@@ -411,8 +415,16 @@ public class DefaultContainerService extends IntentService {
         long reqInternalSize = 0;
         boolean intThresholdOk = (pctNandFree >= LOW_NAND_FLASH_TRESHOLD);
         boolean intAvailOk = ((reqInstallSize + reqInternalSize) < availInternalSize);
-        boolean sdextAvailOk = ((reqInstallSize + reqInternalSize) < availsdextSize);
-        boolean fitsOnSDExt = sdextAvailOk;
+        boolean fitsOnSdExt = false;
+        if (sdextAvailable && (reqInstallSize < availsdextSize)) {
+            if (reqInternalSize == 0) {
+                // Don't check internal threshold if there is no
+                // internal size requirement
+                fitsOnSdExt = true;
+            } else if ((reqInternalSize < availInternalSize) && intThersholdOk) {
+                fitsOnSdExt = true;
+            }
+        }
         boolean fitsOnSd = false;
         if (mediaAvailable && (reqInstallSize < availSDSize)) {
             // If we do not have an internal size requirement
@@ -453,13 +465,16 @@ public class DefaultContainerService extends IntentService {
             if (fitsOnInt) {
                 return PackageHelper.RECOMMEND_INSTALL_INTERNAL;
             }
-            // Check for external next
+            // Check for external last
             if (fitsOnSd) {
                 return PackageHelper.RECOMMEND_INSTALL_EXTERNAL;
             }
         }
-        if ((checkExt || checkAll || checkSDExt) && !mediaAvailable) {
+        if ((checkExt && checkAll) && !mediaAvailable) {
             return PackageHelper.RECOMMEND_MEDIA_UNAVAILABLE;
+        }
+        if ((checkSdExt && checkAll) && !sdextAvailable) {
+            return PackageHelper.RECOMMEND_MEDIA UNAVAILABLE;
         }
         return PackageHelper.RECOMMEND_FAILED_INSUFFICIENT_STORAGE;
     }
@@ -467,6 +482,19 @@ public class DefaultContainerService extends IntentService {
     private boolean checkFreeStorageInner(boolean external, Uri packageURI) {
         File apkFile = new File(packageURI.getPath());
         long size = apkFile.length();
+        // hack to work out if we are moving to sd-ext or data
+        boolean sdext = packageURI.getPath().substring(0,8).equals("/sd-ext");
+        if (sdext) {
+            String status = Environment.getSdExtState();
+            long availSdExtSize = -1;
+            if (status.equals(Environment.MEDIA_MOUNTED)) {
+                StatFs sdextStats = new StatFs(
+                        Environment.getSdExtDirectory().getPath());
+                availsdextSize = (long)sdextStats.getAvailableBlocks() *
+                    (long)sdextStats.getBlockSize();
+            }
+            return availSdExtSize > size;
+        }
         if (external) {
             String status = Environment.getExternalStorageState();
             long availSDSize = -1;
@@ -484,11 +512,6 @@ public class DefaultContainerService extends IntentService {
         long availInternalSize = (long)internalStats.getAvailableBlocks() *
         (long)internalStats.getBlockSize();
 
-        StatFs sdextStats = new StatFs(Environment.getSdExtDirectory().getPath());
-        long totalsdextSize = (long)sdextStats.getBlockCount() *
-        (long)sdextStats.getBlockSize();
-        long availsdextSize = (long)sdextStats.getAvailableBlocks() *
-        (long)sdextStats.getBlockSize();
         double pctNandFree = (double)availInternalSize / (double)totalInternalSize;
 
         // To make final copy
@@ -497,12 +520,6 @@ public class DefaultContainerService extends IntentService {
         long reqInternalSize = 0;
         boolean intThresholdOk = (pctNandFree >= LOW_NAND_FLASH_TRESHOLD);
         boolean intAvailOk = ((reqInstallSize + reqInternalSize) < availInternalSize);
-        boolean sdextAvailOk = ((reqInstallSize + reqInternalSize) < availsdextSize);
-        // hack to work out if we are moving to sd-ext or data
-        if (packageURI.getPath().substring(0,8).equals("/sd-ext")) {
-            return intThresholdOk && intAvailOk;
-        } else {
-            return sdextAvailOk;
-        }
+        return intThresholdOk && intAvailOk;
     }
 }
