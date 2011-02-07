@@ -52,10 +52,10 @@ import java.util.HashSet;
 class MountService extends IMountService.Stub
         implements INativeDaemonConnectorCallbacks {
     private static final boolean LOCAL_LOGD = false;
-    private static final boolean DEBUG_UNMOUNT = true;
-    private static final boolean DEBUG_EVENTS = true;
+    private static final boolean DEBUG_UNMOUNT = false;
+    private static final boolean DEBUG_EVENTS = false;
     
-    private static final String TAG = "MountService-NLJ";
+    private static final String TAG = "MountService";
 
     /*
      * Internal vold volume state constants
