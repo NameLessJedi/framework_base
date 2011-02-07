@@ -341,6 +341,23 @@ public class Environment {
         }
     }
 
+    /**
+     * Gets the current state of SD-Ext
+     * Note: this call should be deprecated as it doesn't support
+     * multiple volumes.
+     */
+   public static String getSdExtState() {
+       try {
+           if (mMntSvc == null) {
+               mMntSvc = IMountService.Stub.asInterface(ServiceManager
+                                                        .getService("mount"));
+           }
+           return mMntSvc.getVolumeState(getSdExtDirectory().toString());
+       } catch (Exception rex) {
+           return Environment.MEDIA_REMOVED;
+       }
+   }
+
     static File getDirectory(String variableName, String defaultPath) {
         String path = System.getenv(variableName);
         return path == null ? new File(defaultPath) : new File(path);
