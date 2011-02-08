@@ -924,7 +924,7 @@ class PackageManagerService extends IPackageManager.Stub {
                             }
                         }
                     }
-                    if (isA2SDActive()) {
+                    if (Environment.getSdExtState().equals(Environment.MEDIA_MOUNTED)) {
                         files = mSdExtDalvikCacheDir.list();
                         if (files != null) {
                             for (int i=0; i<files.length; i++) {
@@ -4762,11 +4762,6 @@ class PackageManagerService extends IPackageManager.Stub {
     public void installPackage(
             final Uri packageURI, final IPackageInstallObserver observer, final int flags) {
         installPackage(packageURI, observer, flags, null);
-    }
-
-    private boolean isA2SDActive() {
-        return SystemProperties.getBoolean("cm.a2sd.active", false) ||
-               SystemProperties.getBoolean("cm.a2sd.force", false)  ;
     }
 
     /* Called when a downloaded package installation has been confirmed by the user */
