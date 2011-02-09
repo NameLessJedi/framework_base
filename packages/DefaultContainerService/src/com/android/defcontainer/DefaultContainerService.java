@@ -474,7 +474,7 @@ public class DefaultContainerService extends IntentService {
             return PackageHelper.RECOMMEND_MEDIA_UNAVAILABLE;
         }
         if ((checkSdExt && checkAll) && !sdextAvailable) {
-            return PackageHelper.RECOMMEND_MEDIA UNAVAILABLE;
+            return PackageHelper.RECOMMEND_MEDIA_UNAVAILABLE;
         }
         return PackageHelper.RECOMMEND_FAILED_INSUFFICIENT_STORAGE;
     }
