@@ -666,7 +666,7 @@ public final class Pm {
             } else if (opt.equals("-e")) {
                 if (Environment.getSdExtState().equals(Environment.MEDIA_MOUNTED)) {
                     // Override if -e option is sepcified
-                    installFlags != PackageManager.INSTALL_SDEXT;
+                    installFlags |= PackageManager.INSTALL_SDEXT;
                 } else {
                     showUsage();
                     System.err.println("Error: /sd-ext not mounted");
