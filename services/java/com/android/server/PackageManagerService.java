@@ -785,6 +785,13 @@ class PackageManagerService extends IPackageManager.Stub {
 
             File dataDir = Environment.getDataDirectory();
             File sdExtDir = Environment.getSdExtDirectory();
+
+            // While system starts information about filesystems mounted
+            // via (x)Vold might not be reliable
+            // Consider this a workaround till sd-ext will get handled same way
+            // as apps installed on sdcard (FAT)
+            boolean mSdExtState = SystemProperties.getBoolean("sys.vold.sdext", false);
+
             mAppDataDir = new File(dataDir, "data");
             mSdExtInstallDir = new File(sdExtDir, "app");
             mDrmAppPrivateInstallDir = new File(dataDir, "app-private");
@@ -798,8 +805,10 @@ class PackageManagerService extends IPackageManager.Stub {
                 miscDir.mkdirs();
                 mAppDataDir.mkdirs();
                 mDrmAppPrivateInstallDir.mkdirs();
-                mSdExtInstallDir.mkdirs();
-                mDrmSdExtPrivateInstallDir.mkdirs();
+                if (mSdExtState) {
+                    mSdExtInstallDir.mkdirs();
+                    mDrmSdExtPrivateInstallDir.mkdirs();
+                }
             }
 
             readPermissions();
@@ -924,7 +933,7 @@ class PackageManagerService extends IPackageManager.Stub {
                             }
                         }
                     }
-                    if (Environment.getSdExtState().equals(Environment.MEDIA_MOUNTED)) {
+                    if (mSdExtState) {
                         files = mSdExtDalvikCacheDir.list();
                         if (files != null) {
                             for (int i=0; i<files.length; i++) {
@@ -1005,7 +1014,8 @@ class PackageManagerService extends IPackageManager.Stub {
             mSdExtInstallObserver = new AppDirObserver(
                 mSdExtInstallDir.getPath(), OBSERVER_EVENTS, false);
             mSdExtInstallObserver.startWatching();
-            if (Environment.getSdExtState().equals(Environment.MEDIA_MOUNTED)) {
+
+            if (mSdExtState) {
                 scanDirLI(mSdExtInstallDir, PackageParser.PARSE_ON_SDEXT, scanMode);
             }
 
@@ -1016,7 +1026,7 @@ class PackageManagerService extends IPackageManager.Stub {
 
             mDrmSdExtInstallObserver = new AppDirObserver(
                 mDrmSdExtPrivateInstallDir.getPath(), OBSERVER_EVENTS, false);
-            if (Environment.getSdExtState().equals(Environment.MEDIA_MOUNTED)) {
+            if (mSdExtState) {
                 scanDirLI(mDrmSdExtPrivateInstallDir, PackageParser.PARSE_FORWARD_LOCK & PackageParser.PARSE_ON_SDEXT, scanMode);
             }
             mDrmSdExtInstallObserver.startWatching();
