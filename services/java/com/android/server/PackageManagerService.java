@@ -786,11 +786,8 @@ class PackageManagerService extends IPackageManager.Stub {
             File dataDir = Environment.getDataDirectory();
             File sdExtDir = Environment.getSdExtDirectory();
 
-            // While system starts information about filesystems mounted
-            // via (x)Vold might not be reliable
-            // Consider this a workaround till sd-ext will get handled same way
-            // as apps installed on sdcard (FAT)
-            boolean mSdExtState = SystemProperties.getBoolean("sys.vold.sdext", false);
+            boolean sdExtRO = SystemProperties.getBoolean("ro.vold.sdextonboot", false);
+            boolean mSdExtState = false;
 
             mAppDataDir = new File(dataDir, "data");
             mSdExtInstallDir = new File(sdExtDir, "app");
@@ -805,10 +802,6 @@ class PackageManagerService extends IPackageManager.Stub {
                 miscDir.mkdirs();
                 mAppDataDir.mkdirs();
                 mDrmAppPrivateInstallDir.mkdirs();
-                if (mSdExtState) {
-                    mSdExtInstallDir.mkdirs();
-                    mDrmSdExtPrivateInstallDir.mkdirs();
-                }
             }
 
             readPermissions();
@@ -913,6 +906,28 @@ class PackageManagerService extends IPackageManager.Stub {
                         } catch (IOException e) {
                             Slog.w(TAG, "Exception reading jar: " + path, e);
                         }
+                    }
+                }
+
+                // At this point MountService is not up yet
+                // So whole communication with xVold must be via props
+                // This is more of work-around/hack than real solution.
+                // Proper way would be to get SdExt app behave more like
+                // SdFat installed apps
+                if (sdExtRO) {
+                    mSdExtState = SystemProperties.getBoolean("sys.vold.sdext", false);
+                    int  retries =  20;
+                    while (!mSdExtState && retries-- >= 0) {
+                        try {
+                            Thread.sleep(1000);
+                        } catch (InterruptedException e) {
+                            Slog.e(TAG, "Interrupted while waitin for SdExt to settle: ", e);
+                            break;
+                        }
+                        mSdExtState = SystemProperties.getBoolean("sys.vold.sdext", false);
+                    }
+                    if (retries == 0) {
+                        Slog.e(TAG, "Timed out while waiting for SdExt to settle");
                     }
                 }
 
