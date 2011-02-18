@@ -1005,6 +1005,37 @@ class MountService extends IMountService.Stub
                 Slog.w(TAG, "RemoteException when shutting down");
             }
         }
+
+        // Rinse and repeat for SdExt
+        path = Environment.getSdExtDirectory().getPath();
+        state = getVolumeState(path);
+
+        if (state.equals(Environment.MEDIA_CHECKING)) {
+            int retries = 20;
+            while (state.equals(Environment.MEDIA_CHECKING) && (retries-- >=0)) {
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException iex) {
+                    Slog.e(TAG, "Interrupted while waiting for sd-ext media", iex);
+                    break;
+                }
+                state = Environment.getSdExtState();
+            }
+            if (retries == 0) {
+                Slog.e(TAG, "Timed out waiting for sd-ext media to check");
+            }
+        }
+        if (state.equals(Environment.MEDIA_MOUNTED)) {
+            ShutdownCallBack ucb1 = new ShutdownCallBack(path, observer);
+            mHandler.sendMessage(mHandler.obtainMessage(H_UNMOUNT_PM_UPDATE, ucb1));
+        } else if (observer != null) {
+            try {
+                observer.onShutDownComplete(StorageResultCode.OperationSucceeded);
+            } catch (RemoteException e) {
+                Slog.w(TAG, "RemoteException when shutting down");
+            }
+        }
+
     }
 
     private boolean getUmsEnabling() {
