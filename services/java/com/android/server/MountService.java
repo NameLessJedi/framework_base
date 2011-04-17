@@ -318,7 +318,7 @@ class MountService extends IMountService.Stub
                                     Slog.i(TAG, "About to doMountVolume(" + path + ")");
                                     int rc = doMountVolume(path);
                                     if (rc != StorageResultCode.OperationSucceeded) {
-                                        Slog.e(TAG, String.format("Boot-time mount failed (%d)", rc));
+                                        Slog.e(TAG, String.format("Boot-time mount failed for %s (%d)", path, rc));
                                     }
                                 } else if (state.equals(Environment.MEDIA_SHARED)) {
                                     /*
@@ -326,6 +326,8 @@ class MountService extends IMountService.Stub
                                      * the volume is shared (runtime restart while ums enabled)
                                      */
                                     notifyVolumeStateChange(null, path, VolumeState.NoMedia, VolumeState.Shared);
+                                } else if (state.equals(Environment.MEDIA_MOUNTED)) {
+                                    Slog.i(TAG, String.format("%s was already mounted", path));
                                 }
 
                                 /*
