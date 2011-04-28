@@ -1258,6 +1258,16 @@ public final class Settings {
         public static final String COMPATIBILITY_MODE = "compatibility_mode";
 
         /**
+         * Enable fade in animation
+         */
+        public static final String ELECTRON_BEAM_ANIMATION_ON = "electron_beam_animation_on";
+
+        /**
+         * Enable fade out animation
+         */
+        public static final String ELECTRON_BEAM_ANIMATION_OFF = "electron_beam_animation_off";
+
+        /**
          * The screen backlight brightness between 0 and 255.
          */
         public static final String SCREEN_BRIGHTNESS = "screen_brightness";
@@ -2489,7 +2499,9 @@ public final class Settings {
             QUIET_HOURS_STILL,
             QUIET_HOURS_DIM,
             LOCKSCREEN_GESTURES_SENSITIVITY,
-            LOCKSCREEN_GESTURES_COLOR
+            LOCKSCREEN_GESTURES_COLOR,
+            ELECTRON_BEAM_ANIMATION_ON,
+            ELECTRON_BEAM_ANIMATION_OFF
         };
 
         // Settings moved to Settings.Secure
