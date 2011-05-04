@@ -475,7 +475,7 @@ int32_t RefBase::weakref_type::getWeakCount() const
 
 void RefBase::weakref_type::printRefs() const
 {
-    static_cast<const weakref_impl*>(this)->printRefs();
+    static_cast<weakref_impl*>(this)->printRefs();
 }
 
 void RefBase::weakref_type::trackMe(bool enable, bool retain)
