@@ -316,12 +316,17 @@ public class DefaultContainerService extends IntentService {
                 .getContentResolver(),
                 Settings.Secure.DEFAULT_INSTALL_LOCATION,
                 PackageHelper.APP_INSTALL_AUTO);
+        String extState = Environment.getExternalStorageState();
+        String sdExtState = Environment.getSdExtState();
+        boolean sdExtAccessible = sdExtState.equals(Environment.MEDIA_MOUNTED);
+        boolean mediaAccessible = extState.equals(Environment.MEDIA_MOUNTED);
+
         check_inner : {
             // Check flags.
             if ((flags & PackageManager.INSTALL_FORWARD_LOCK) != 0) {
                 // Check for forward locked app
                 // TODO check sd-ext is mounted
-                checkSdExt = true;
+                checkSdExt = sdExtAccessible;
                 checkInt = true;
                 break check_inner;
             } else if ((flags & PackageManager.INSTALL_INTERNAL) != 0) {
@@ -337,21 +342,17 @@ public class DefaultContainerService extends IntentService {
             } else if ((flags & PackageManager.INSTALL_SDEXT) != 0) {
                 // Explicit flag to install to sdext.
                 // Check sdext storage and return
-                checkSdExt = true;
+                checkSdExt = sdExtAccessible;
                 break check_inner;
             }
             // Check for manifest option
+            if (installPreference == PackageHelper.APP_INSTALL_SDEXT) {
+                checkSdExt = sdExtAccessible;
+            }
             if (installLocation == PackageInfo.INSTALL_LOCATION_INTERNAL_ONLY) {
-                // TODO check sd-ext is mounted
-                if (installPreference == PackageHelper.APP_INSTALL_SDEXT) {
-                    checkSdExt = true;
-                }
                 checkInt = true;
                 break check_inner;
             } else if (installLocation == PackageInfo.INSTALL_LOCATION_PREFER_EXTERNAL) {
-                if (installPreference == PackageHelper.APP_INSTALL_SDEXT) {
-                    checkSdExt = true;
-                }
                 checkExt = true;
                 checkAll = true;
                 break check_inner;
@@ -366,9 +367,6 @@ public class DefaultContainerService extends IntentService {
             } else if (installPreference == PackageHelper.APP_INSTALL_EXTERNAL) {
                 checkExt = true;
                 break check_inner;
-            } else if (installPreference == PackageHelper.APP_INSTALL_SDEXT) {
-                checkSdExt = true;
-                break check_inner;
             }
             // Fall back to default policy if nothing else is specified.
             checkInt = true;
@@ -377,20 +375,18 @@ public class DefaultContainerService extends IntentService {
         // Package size = code size + cache size + data size
         // If code size > 1 MB, install on SD card.
         // Else install on internal NAND flash, unless space on NAND is less than 10%
-        String status = Environment.getExternalStorageState();
         long availSDSize = -1;
         long availSdExtSize = -1;
         boolean mediaAvailable = false;
         boolean sdextAvailable = false;
-        if (status.equals(Environment.MEDIA_MOUNTED)) {
+        if (mediaAccessible) {
             StatFs sdStats = new StatFs(
                     Environment.getExternalStorageDirectory().getPath());
             availSDSize = (long)sdStats.getAvailableBlocks() *
                     (long)sdStats.getBlockSize();
             mediaAvailable = true;
         }
-        status = Environment.getSdExtState();
-        if (status.equals(Environment.MEDIA_MOUNTED)) {
+        if (sdExtAccessible) {
             StatFs sdextStats = new StatFs(
                     Environment.getSdExtDirectory().getPath());
             availSdExtSize = (long)sdextStats.getAvailableBlocks() *
@@ -436,13 +432,7 @@ public class DefaultContainerService extends IntentService {
             }
         }
         boolean fitsOnInt = intThresholdOk && intAvailOk;
-        if (installPreference == PackageHelper.APP_INSTALL_SDEXT) {
-            if (fitsOnSdExt) {
-                checkInt = false;
-                return PackageHelper.RECOMMEND_INSTALL_SDEXT;
-            }
-        }
-        if (checkSdExt) {
+        if (installPreference == PackageHelper.APP_INSTALL_SDEXT || checkSdExt) {
             if (fitsOnSdExt) {
                 return PackageHelper.RECOMMEND_INSTALL_SDEXT;
             }
