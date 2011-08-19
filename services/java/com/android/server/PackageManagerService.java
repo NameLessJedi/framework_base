@@ -4935,14 +4935,10 @@ class PackageManagerService extends IPackageManager.Stub {
             String packageName = pkgLite.packageName;
             int installLocation = pkgLite.installLocation;
             boolean onSd = (flags & PackageManager.INSTALL_EXTERNAL) != 0;
-            boolean onSdext = (flags & PackageManager.INSTALL_SDEXT) != 0;
-            Slog.i("NLJ", "INSTALL_SDEXT " + Integer.toHexString(PackageManager.INSTALL_SDEXT));
-            Slog.i("NLJ", "onSd is " + onSd + " onSdext is "+ onSdext);
-            Slog.i("NLJ", "flags are " + Integer.toHexString(flags) + " installLocation is " + installLocation);
+            boolean onSdExt = (flags & PackageManager.INSTALL_SDEXT) != 0;
             synchronized (mPackages) {
                 PackageParser.Package pkg = mPackages.get(packageName);
                 if (pkg != null) {
-                    Slog.i("NLJ", "pkg.applicationInfo.flags " + Integer.toHexString(pkg.applicationInfo.flags));
                     if ((flags & PackageManager.INSTALL_REPLACE_EXISTING) != 0) {
                         // Check for updated system application.
                         if ((pkg.applicationInfo.flags & ApplicationInfo.FLAG_SYSTEM) != 0) {
@@ -4955,7 +4951,7 @@ class PackageManagerService extends IPackageManager.Stub {
                             if (onSd) {
                                 // Install flag overrides everything.
                                 return PackageHelper.RECOMMEND_INSTALL_EXTERNAL;
-                            } else if (onSdext) {
+                            } else if (onSdExt) {
                                 // Install flag overrides everything.
                                 return PackageHelper.RECOMMEND_INSTALL_SDEXT;
                             }
@@ -4969,9 +4965,6 @@ class PackageManagerService extends IPackageManager.Stub {
                                 return PackageHelper.RECOMMEND_INSTALL_SDEXT;
                             } else {
                                 // Prefer previous location
-                                Slog.i("NLJ", "FLAG_EXTERNAL_STORAGE="+Integer.toHexString(ApplicationInfo.FLAG_EXTERNAL_STORAGE));
-                                Slog.i("NLJ", "FLAG_SDEXT_STORAGE="+Integer.toHexString(ApplicationInfo.FLAG_SDEXT_STORAGE));
-                                Slog.i("NLJ", "pkgLite.recommendedInstallLocation="+pkgLite.recommendedInstallLocation);
                                 if ((pkg.applicationInfo.flags & ApplicationInfo.FLAG_EXTERNAL_STORAGE) != 0) {
                                     return PackageHelper.RECOMMEND_INSTALL_EXTERNAL;
                                 } else if ((pkg.applicationInfo.flags & ApplicationInfo.FLAG_SDEXT_STORAGE) != 0) {
@@ -4990,7 +4983,7 @@ class PackageManagerService extends IPackageManager.Stub {
             // Return result based on recommended install location.
             if (onSd) {
                 return PackageHelper.RECOMMEND_INSTALL_EXTERNAL;
-            } else if (onSdext) {
+            } else if (onSdExt) {
                 return PackageHelper.RECOMMEND_INSTALL_SDEXT;
             }
             return pkgLite.recommendedInstallLocation;
@@ -5007,19 +5000,9 @@ class PackageManagerService extends IPackageManager.Stub {
             boolean fwdLocked = (flags & PackageManager.INSTALL_FORWARD_LOCK) != 0;
             boolean onSd = (flags & PackageManager.INSTALL_EXTERNAL) != 0;
             boolean onInt = (flags & PackageManager.INSTALL_INTERNAL) != 0;
-            boolean onSdext = (flags & PackageManager.INSTALL_SDEXT) != 0;
-            Slog.w("NLJ", "hSC flags = " + Integer.toHexString(flags));
-            Slog.w("NLJ", "hSC onSd=" + onSd + " onInt=" + onInt + " onSdext=" + onSdext);
-            Slog.w("NLJ", "hSC fwdLocked = " + fwdLocked);
-            if (onInt && onSd) {
-                // Check only one bit is set.
-                Slog.w(TAG, "Conflicting flags specified for installing on both internal and external");
-                ret = PackageManager.INSTALL_FAILED_INVALID_INSTALL_LOCATION;
-            } else if (onInt && onSdext) {
-                Slog.w(TAG, "Conflicting flags specified for installing on both internal and sd-ext");
-                ret = PackageManager.INSTALL_FAILED_INVALID_INSTALL_LOCATION;
-            } else if (onSd && onSdext) {
-                Slog.w(TAG, "Conflicting flags specified for installing on both external and sd-ext");
+            boolean onSdExt = (flags & PackageManager.INSTALL_SDEXT) != 0;
+            if ((onInt && onSd) || (onInt && onSdExt) || (onSd && onSdExt)) {
+                Slog.w(TAG, "Conflicting flags specified for installing");
                 ret = PackageManager.INSTALL_FAILED_INVALID_INSTALL_LOCATION;
             } else if (fwdLocked && onSd) {
                 // Check for forward locked apps
@@ -5029,7 +5012,6 @@ class PackageManagerService extends IPackageManager.Stub {
                 // Remote call to find out default install location
                 PackageInfoLite pkgLite = mContainerService.getMinimalPackageInfo(packageURI, flags);
                 int loc = pkgLite.recommendedInstallLocation;
-                Slog.w("NLJ", "hSC 2 recommendedInstallLocation " + loc);
                 if (loc == PackageHelper.RECOMMEND_FAILED_INVALID_LOCATION){
                     ret = PackageManager.INSTALL_FAILED_INVALID_INSTALL_LOCATION;
                 } else if (loc == PackageHelper.RECOMMEND_FAILED_ALREADY_EXISTS){
@@ -5043,8 +5025,7 @@ class PackageManagerService extends IPackageManager.Stub {
                 } else {
                     // Override with defaults if needed.
                     loc = installLocationPolicy(pkgLite, flags);
-                    Slog.w("NLJ", "hSC 3 installLocationPolicy " + loc);
-                    if (!onSd && !onInt && !onSdext) {
+                    if (!onSd && !onInt && !onSdExt) {
                         // Override install location with flags
                         if (loc == PackageHelper.RECOMMEND_INSTALL_SDEXT) {
                             // Set the flag to install on sd-ext
@@ -5063,7 +5044,6 @@ class PackageManagerService extends IPackageManager.Stub {
                             flags &= ~PackageManager.INSTALL_EXTERNAL;
                             flags &= ~PackageManager.INSTALL_SDEXT;
                         }
-                        Slog.w("NLJ", "hSC 4 flags = " + Integer.toHexString(flags));
                     }
                 }
             }
@@ -5161,7 +5141,6 @@ class PackageManagerService extends IPackageManager.Stub {
     }
 
     private InstallArgs createInstallArgs(InstallParams params) {
-        Slog.w("NLJ", "cIA 1 flags" + params.flags);
         if (installOnSd(params.flags)) {
             return new SdInstallArgs(params);
         } else if (installOnSdExt(params.flags)) {
@@ -5172,8 +5151,6 @@ class PackageManagerService extends IPackageManager.Stub {
     }
 
     private InstallArgs createInstallArgs(int flags, String fullCodePath, String fullResourcePath) {
-        Slog.w("NLJ", "cIA 2 flags" + Integer.toHexString(flags));
-        Slog.w("NLJ", "cIA 3 CodePath" + fullCodePath + " ResPath " + fullResourcePath);
         if (installOnSd(flags)) {
             return new SdInstallArgs(fullCodePath, fullResourcePath);
         } else if (installOnSdExt(flags)) {
@@ -5185,7 +5162,6 @@ class PackageManagerService extends IPackageManager.Stub {
 
     private InstallArgs createInstallArgs(Uri packageURI, int flags,
             String pkgName) {
-        Slog.w("NLJ", " cIA 4 flags " + Integer.toHexString(flags) + " pkg " + pkgName);
         if (installOnSd(flags)) {
             String cid = getNextCodePath(null, pkgName, "/" + SdInstallArgs.RES_FILE_NAME);
             return new SdInstallArgs(packageURI, cid);
@@ -6201,7 +6177,7 @@ class PackageManagerService extends IPackageManager.Stub {
         File tmpPackageFile = new File(args.getCodePath());
         boolean forwardLocked = ((pFlags & PackageManager.INSTALL_FORWARD_LOCK) != 0);
         boolean onSd = ((pFlags & PackageManager.INSTALL_EXTERNAL) != 0);
-        boolean onSdext = ((pFlags & PackageManager.INSTALL_SDEXT) != 0);
+        boolean onSdExt = ((pFlags & PackageManager.INSTALL_SDEXT) != 0);
         boolean replace = false;
         int scanMode = (onSd ? 0 : SCAN_MONITOR) | SCAN_FORCE_DEX | SCAN_UPDATE_SIGNATURE
                 | (newInstall ? SCAN_NEW_INSTALL : 0);
@@ -6212,7 +6188,7 @@ class PackageManagerService extends IPackageManager.Stub {
         int parseFlags = PackageParser.PARSE_CHATTY |
         (forwardLocked ? PackageParser.PARSE_FORWARD_LOCK : 0) |
         (onSd ? PackageParser.PARSE_ON_SDCARD : 0) |
-        (onSdext ? PackageParser.PARSE_ON_SDEXT : 0) ;
+        (onSdExt ? PackageParser.PARSE_ON_SDEXT : 0) ;
         parseFlags |= mDefParseFlags;
         PackageParser pp = new PackageParser(tmpPackageFile.getPath());
         pp.setSeparateProcesses(mSeparateProcesses);
@@ -6281,7 +6257,6 @@ class PackageManagerService extends IPackageManager.Stub {
         // Set application objects path explicitly after the rename
         setApplicationInfoPaths(pkg, args.getCodePath(), args.getResourcePath());
         if (replace) {
-            Slog.w("NLJ", "parseFlags = " + Integer.toHexString(parseFlags) + " scanMode = " + Integer.toHexString(scanMode) + " installerPackageName " + installerPackageName);
             replacePackageLI(pkg, parseFlags, scanMode,
                     installerPackageName, res);
         } else {
