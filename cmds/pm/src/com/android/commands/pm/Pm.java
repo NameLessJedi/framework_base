@@ -679,6 +679,21 @@ public final class Pm {
             }
         }
 
+        if (installFlags == 0) {
+            int installPrefs = Settings.System.GetInt(
+                    getApplicationContext().getContentResolver(),
+                    Settings.Secure.DEFAULT_INSTALL_LOCATION,
+                    PackageHelper.APP_INSTALL_AUTO);
+            if (installPrefs == PackageHelper.APP_INSTALL_INTERNAL) {
+                installFlags |= PackageManager.INSTALL_INTERNAL;
+            } else if (installPrefs == PackageHelper.APP_INSTALL_EXTERNAL) {
+                installFlags |= PackageManager.INSTALL_EXTERNAL;
+            } else if (Environment.getSdExtState().equals(Environment.MEDIA_MOUNTED) &&
+                    (installPrefs == PackageHelper.APP_INSTALL_SDEXT)) {
+                installFlags |= PackageManager.INSTALL_SDEXT;
+            }
+        }
+
         String apkFilePath = nextArg();
         System.err.println("\tpkg: " + apkFilePath);
         if (apkFilePath == null) {
