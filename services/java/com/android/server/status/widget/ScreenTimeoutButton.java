@@ -86,8 +86,6 @@ public class ScreenTimeoutButton extends PowerButton {
     public void updateState(Context context) {
 
         mContext = context;
-        boolean useCustomExp = Settings.System.getInt(mContext.getContentResolver(),
-        Settings.System.NOTIF_EXPANDED_BAR_CUSTOM, 0) == 1;
 
         currentMode = Settings.System.getInt(context.getContentResolver(),
                 Settings.System.EXPANDED_SCREENTIMEOUT_MODE, DEFAULT_SETTING);
@@ -95,25 +93,13 @@ public class ScreenTimeoutButton extends PowerButton {
         int timeout=getScreenTtimeout(context);
         //TODO: ADD support for the possible values
         if (timeout <= SCREEN_LOW_TIMEOUT) {
-            if (useCustomExp) {
-                currentIcon = R.drawable.stat_screen_timeout_off_cust;
-            } else {
-                currentIcon = R.drawable.stat_screen_timeout_off;
-            }
+            currentIcon = R.drawable.stat_screen_timeout_off;
             currentState = PowerButton.STATE_DISABLED;
         } else if (timeout <= SCREEN_HI_TIMEOUT) {
-            if (useCustomExp) {
-                currentIcon = R.drawable.stat_screen_timeout_off_cust;
-            } else {
-                currentIcon = R.drawable.stat_screen_timeout_off;
-            }
+            currentIcon = R.drawable.stat_screen_timeout_off;
             currentState = PowerButton.STATE_INTERMEDIATE;
         } else {
-            if (useCustomExp) {
-                currentIcon = R.drawable.stat_screen_timeout_on_cust;
-            } else {
-                currentIcon = R.drawable.stat_screen_timeout_on;
-            }
+            currentIcon = R.drawable.stat_screen_timeout_on;
             currentState = PowerButton.STATE_ENABLED;
         }
     }

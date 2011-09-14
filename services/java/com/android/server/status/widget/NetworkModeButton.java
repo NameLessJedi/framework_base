@@ -140,8 +140,6 @@ public class NetworkModeButton extends PowerButton{
     @Override
     public void updateState(Context context) {
         mContext = context;
-        boolean useCustomExp = Settings.System.getInt(mContext.getContentResolver(),
-        Settings.System.NOTIF_EXPANDED_BAR_CUSTOM, 0) == 1;
 
         currentMode = Settings.System.getInt(context.getContentResolver(),
                 Settings.System.EXPANDED_NETWORK_MODE, DEFAULT_SETTING);
@@ -150,25 +148,13 @@ public class NetworkModeButton extends PowerButton{
 
         switch (currentState) {
         case PowerButton.STATE_DISABLED:
-            if (useCustomExp) {
-                currentIcon = R.drawable.stat_2g3g_off_cust;
-            } else {
-                currentIcon = R.drawable.stat_2g3g_off;
-            }
+            currentIcon = R.drawable.stat_2g3g_off;
             break;
         case PowerButton.STATE_ENABLED:
             if (networkMode == Phone.NT_MODE_WCDMA_ONLY) {
-                if (useCustomExp) {
-                    currentIcon = R.drawable.stat_3g_on_cust;
-                } else {
-                    currentIcon = R.drawable.stat_3g_on;
-                }
+                currentIcon = R.drawable.stat_3g_on;
             } else {
-                if (useCustomExp) {
-                    currentIcon = R.drawable.stat_2g3g_on_cust;
-                } else {
-                    currentIcon = R.drawable.stat_2g3g_on;
-                }
+                currentIcon = R.drawable.stat_2g3g_on;
             }
             break;
         case PowerButton.STATE_INTERMEDIATE:
@@ -179,24 +165,12 @@ public class NetworkModeButton extends PowerButton{
             // sunlight.
             if (currentInternalState == PowerButton.STATE_TURNING_ON) {
                 if (intendedNetworkMode == Phone.NT_MODE_WCDMA_ONLY) {
-                    if (useCustomExp) {
-                        currentIcon = R.drawable.stat_3g_on_cust;
-                    } else {
-                        currentIcon = R.drawable.stat_3g_on;
-                    }
+                    currentIcon = R.drawable.stat_3g_on;
                 } else {
-                    if (useCustomExp) {
-                        currentIcon = R.drawable.stat_2g3g_on_cust;
-                    } else {
-                        currentIcon = R.drawable.stat_2g3g_on;
-                    }
+                    currentIcon = R.drawable.stat_2g3g_on;
                 }
             } else {
-                if (useCustomExp) {
-                    currentIcon = R.drawable.stat_2g3g_off_cust;
-                } else {
-                    currentIcon = R.drawable.stat_2g3g_off;
-                }
+                currentIcon = R.drawable.stat_2g3g_off;
             }
             break;
         }

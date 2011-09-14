@@ -87,22 +87,12 @@ public class SyncButton extends PowerButton {
 
     public void updateState(Context context) {
         mContext = context;
-        boolean useCustomExp = Settings.System.getInt(mContext.getContentResolver(),
-        Settings.System.NOTIF_EXPANDED_BAR_CUSTOM, 0) == 1;
 
         if (getSync(context)) {
-            if (useCustomExp) {
-                currentIcon = R.drawable.stat_sync_on_cust;
-            } else {
-                currentIcon = R.drawable.stat_sync_on;
-            }
+            currentIcon = R.drawable.stat_sync_on;
             currentState = PowerButton.STATE_ENABLED;
         } else {
-            if (useCustomExp) {
-                currentIcon = R.drawable.stat_sync_off_cust;
-            } else {
-                currentIcon = R.drawable.stat_sync_off;
-            }
+            currentIcon = R.drawable.stat_sync_off;
             currentState = PowerButton.STATE_DISABLED;
         }
     }

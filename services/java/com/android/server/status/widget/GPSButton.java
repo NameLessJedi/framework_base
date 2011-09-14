@@ -17,23 +17,12 @@ public class GPSButton extends PowerButton {
 
     public void updateState(Context context) {
         mContext = context;
-        boolean useCustomExp = Settings.System.getInt(mContext.getContentResolver(),
-        Settings.System.NOTIF_EXPANDED_BAR_CUSTOM, 0) == 1;
-
         Log.i("GPSButton", "Update State");
         if(getGpsState(context)) {
-            if (useCustomExp) {
-                currentIcon = com.android.internal.R.drawable.stat_gps_on_cust;
-            } else {
-                currentIcon = com.android.internal.R.drawable.stat_gps_on;
-            }
+            currentIcon = com.android.internal.R.drawable.stat_gps_on;
             currentState = STATE_ENABLED;
         } else {
-            if (useCustomExp) {
-                currentIcon = com.android.internal.R.drawable.stat_gps_off_cust;
-            } else {
-                currentIcon = com.android.internal.R.drawable.stat_gps_off;
-            }
+            currentIcon = com.android.internal.R.drawable.stat_gps_off;
             currentState = STATE_DISABLED;
         }
     }

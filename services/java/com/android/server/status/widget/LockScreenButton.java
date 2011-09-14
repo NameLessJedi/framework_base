@@ -33,30 +33,16 @@ public class LockScreenButton extends PowerButton {
 
     public void updateState(Context context) {
         mContext = context;
-        boolean useCustomExp = Settings.System.getInt(mContext.getContentResolver(),
-        Settings.System.NOTIF_EXPANDED_BAR_CUSTOM, 0) == 1;
 
         getState(context);
         if (lockScreen == null) {
-            if (useCustomExp) {
-                currentIcon = R.drawable.stat_lock_screen_off_cust;
-            } else {
-                currentIcon = R.drawable.stat_lock_screen_off;
-            }
+            currentIcon = R.drawable.stat_lock_screen_off;
             currentState = PowerButton.STATE_INTERMEDIATE;
         } else if (lockScreen) {
-            if (useCustomExp) {
-                currentIcon = R.drawable.stat_lock_screen_on_cust;
-            } else {
-                currentIcon = R.drawable.stat_lock_screen_on;
-            }
+            currentIcon = R.drawable.stat_lock_screen_on;
             currentState = PowerButton.STATE_ENABLED;
         } else {
-            if (useCustomExp) {
-                currentIcon = R.drawable.stat_lock_screen_off_cust;
-            } else {
-                currentIcon = R.drawable.stat_lock_screen_off;
-            }
+            currentIcon = R.drawable.stat_lock_screen_off;
             currentState = PowerButton.STATE_DISABLED;
         }
     }

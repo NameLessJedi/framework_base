@@ -16,22 +16,11 @@ public class FlashlightButton extends PowerButton {
 
     public void updateState(Context context) {
         mContext = context;
-        boolean useCustomExp = Settings.System.getInt(mContext.getContentResolver(),
-        Settings.System.NOTIF_EXPANDED_BAR_CUSTOM, 0) == 1;
 
         if(getFlashlightEnabled()) {
-            if (useCustomExp) {
-                currentIcon = com.android.internal.R.drawable.stat_flashlight_on_cust;
-            } else {
-                currentIcon = com.android.internal.R.drawable.stat_flashlight_on;
-            }
-            currentState = STATE_ENABLED;
+            currentIcon = com.android.internal.R.drawable.stat_flashlight_on;
         } else {
-            if (useCustomExp) {
-                currentIcon = com.android.internal.R.drawable.stat_flashlight_off_cust;
-            } else {
-                currentIcon = com.android.internal.R.drawable.stat_flashlight_off;
-            }
+            currentIcon = com.android.internal.R.drawable.stat_flashlight_off;
             currentState = STATE_DISABLED;
         }
     }

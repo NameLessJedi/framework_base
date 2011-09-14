@@ -196,8 +196,6 @@ public class SoundButton extends PowerButton {
     @Override
     public void updateState(Context context) {
         mContext = context;
-        boolean useCustomExp = Settings.System.getInt(mContext.getContentResolver(),
-        Settings.System.NOTIF_EXPANDED_BAR_CUSTOM, 0) == 1;
 
         int soundState = getSoundState(context);
         currentMode = Settings.System.getInt(context.getContentResolver(),
@@ -205,35 +203,19 @@ public class SoundButton extends PowerButton {
 
         switch (soundState) {
         case RINGER_MODE_SOUND_AND_VIBRATE:
-                if (useCustomExp) {
-                    currentIcon = R.drawable.stat_ring_on_cust;
-                } else {
-                    currentIcon = R.drawable.stat_ring_on;
-                }
+                currentIcon = R.drawable.stat_ring_on;
                 currentState = PowerButton.STATE_ENABLED;
             break;
         case RINGER_MODE_SOUND_ONLY:
-                if (useCustomExp) {
-                    currentIcon = R.drawable.stat_ring_on_cust;
-                } else {
-                    currentIcon = R.drawable.stat_ring_on;
-                }
+                currentIcon = R.drawable.stat_ring_on;
                 currentState = PowerButton.STATE_INTERMEDIATE;
             break;
         case RINGER_MODE_VIBRATE_ONLY:
-                if (useCustomExp) {
-                    currentIcon = R.drawable.stat_vibrate_off_cust;
-                } else {
-                    currentIcon = R.drawable.stat_vibrate_off;
-                }
+                currentIcon = R.drawable.stat_vibrate_off;
                 currentState = PowerButton.STATE_DISABLED;
             break;
         case RINGER_MODE_SILENT:
-                if (useCustomExp) {
-                    currentIcon = R.drawable.stat_silent_cust;
-                } else {
-                    currentIcon = R.drawable.stat_silent;
-                }
+                currentIcon = R.drawable.stat_silent;
                 currentState = PowerButton.STATE_DISABLED;
             break;
 

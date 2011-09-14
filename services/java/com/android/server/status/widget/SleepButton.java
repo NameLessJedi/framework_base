@@ -19,14 +19,8 @@ public class SleepButton extends PowerButton {
     public void updateState(Context context) {
 
         mContext = context;
-        boolean useCustomExp = Settings.System.getInt(mContext.getContentResolver(),
-        Settings.System.NOTIF_EXPANDED_BAR_CUSTOM, 0) == 1;
 
-        if (useCustomExp) {
-            currentIcon = com.android.internal.R.drawable.stat_sleep_cust;
-        } else {
-            currentIcon = com.android.internal.R.drawable.stat_sleep;
-        }
+        currentIcon = com.android.internal.R.drawable.stat_sleep;
         currentState = STATE_DISABLED;
     }
 

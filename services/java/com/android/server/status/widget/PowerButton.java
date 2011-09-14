@@ -74,15 +74,15 @@ public abstract class PowerButton {
              switch(currentState) {
                 case STATE_ENABLED:
                     updateImageView(views, buttonState,
-                        res.getDrawable(com.android.internal.R.drawable.stat_bgon_custom, sColorMaskOn, expPDMode));
+                        res.getDrawable(com.android.internal.R.drawable.stat_bgon, sColorMaskOn, expPDMode));
                     break;
                 case STATE_DISABLED:
                     updateImageView(views, buttonState,
-                        res.getDrawable(com.android.internal.R.drawable.stat_bgon_custom, sColorMaskOff, expPDMode));
+                        res.getDrawable(com.android.internal.R.drawable.stat_bgon, sColorMaskOff, expPDMode));
                     break;
                 default:
                     updateImageView(views, buttonState,
-                        res.getDrawable(com.android.internal.R.drawable.stat_bgon_custom, sColorMaskInter, expPDMode));
+                        res.getDrawable(com.android.internal.R.drawable.stat_bgon, sColorMaskInter, expPDMode));
                     break;
              }
         }
@@ -94,7 +94,7 @@ public abstract class PowerButton {
     }
     private void updateImageView(ExpandedView view, int id, Drawable resDraw) {
         ImageView statusInd = (ImageView)view.findViewById(id);
-        statusInd.setImageResource(com.android.internal.R.drawable.stat_bgon_custom);
+        statusInd.setImageResource(com.android.internal.R.drawable.stat_bgon);
         statusInd.setImageDrawable(resDraw);
     }
 

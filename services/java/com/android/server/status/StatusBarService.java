@@ -266,11 +266,9 @@ public class StatusBarService extends IStatusBar.Stub
     int[] mAbsPos = new int[2];
     private int blackColor = 0xff000000;
     private int whiteColor = 0xffffffff;
-    private int notificationTitleColor = blackColor;
-    private int notificationTextColor = blackColor;
-    private int notificationTimeColor = blackColor;
-    boolean custNotBar = false;
-    boolean custExpBar = false;
+    private int notificationTitleColor = whiteColor;
+    private int notificationTextColor = whiteColor;
+    private int notificationTimeColor = whiteColor;
     int notifBarColorMask;
     int expBarColorMask;
     Mode notifPDMode = Mode.SCREEN;
@@ -294,9 +292,6 @@ public class StatusBarService extends IStatusBar.Stub
     public StatusBarService(Context context) {
         mContext = context;
         mHandler = new H();
-        notificationTitleColor = Settings.System.getInt(mContext.getContentResolver(), Settings.System.NOTIF_ITEM_TITLE_COLOR, blackColor);
-        notificationTextColor = Settings.System.getInt(mContext.getContentResolver(), Settings.System.NOTIF_ITEM_TEXT_COLOR, blackColor);
-        notificationTimeColor = Settings.System.getInt(mContext.getContentResolver(), Settings.System.NOTIF_ITEM_TIME_COLOR, blackColor);
         mDisplay = ((WindowManager)context.getSystemService(
                 Context.WINDOW_SERVICE)).getDefaultDisplay();
         makeStatusBarView(context);
@@ -317,7 +312,6 @@ public class StatusBarService extends IStatusBar.Stub
         Resources res = context.getResources();
         mRightIconSlots = res.getStringArray(com.android.internal.R.array.status_bar_icon_order);
         mRightIcons = new StatusBarIcon[mRightIconSlots.length];
-        getNotBarConfig();        
         ExpandedView expanded = (ExpandedView)View.inflate(context,
                 com.android.internal.R.layout.status_bar_expanded, null);
         expanded.mService = this;
@@ -334,14 +328,6 @@ public class StatusBarService extends IStatusBar.Stub
         mStatusBarView = sb;
         mDateView = (DateView)sb.findViewById(R.id.date);
        
-        if (custNotBar) {
-            mStatusBarView.setBackgroundDrawable(res.getDrawable(com.android.internal.R.drawable.statusbar_background_sq,
-                                                                 notifBarColorMask, notifPDMode));
-            mDateView.setBackgroundDrawable(res.getDrawable(com.android.internal.R.drawable.statusbar_background_sq,
-                                                            notifBarColorMask, notifPDMode));
-            mDateView.setPadding(6, 0, 6, 0);
-        }
-        
         mStatusIcons = (LinearLayout)sb.findViewById(R.id.statusIcons);
         mNotificationIcons = (IconMerger)sb.findViewById(R.id.notificationIcons);
         mNotificationIcons.service = this;
@@ -364,14 +350,6 @@ public class StatusBarService extends IStatusBar.Stub
         mScrollView = (ScrollView)expanded.findViewById(R.id.scroll);
         mNotificationLinearLayout = expanded.findViewById(R.id.notificationLinearLayout);
 
-        if (custExpBar) {
-            mExpandedView.findViewById(R.id.exp_view_lin_layout).
-                setBackgroundDrawable(expBarHeadDrawable);
-            mNoNotificationsTitle.setBackgroundDrawable(expBarNotifTitleDrawable);
-            mOngoingTitle.setBackgroundDrawable(expBarNotifTitleDrawable);
-            mLatestTitle.setBackgroundDrawable(expBarNotifTitleDrawable);
-        }
-
         mExpandedView.setVisibility(View.GONE);
         mOngoingTitle.setVisibility(View.GONE);
         mLatestTitle.setVisibility(View.GONE);
@@ -385,13 +363,6 @@ public class StatusBarService extends IStatusBar.Stub
                 com.android.internal.R.layout.status_bar_tracking, null);
         mTrackingView.mService = this;
         mCloseView = (CloseDragHandle)mTrackingView.findViewById(R.id.close);
-        if (custExpBar) {
-            ImageView iv = (ImageView)mTrackingView.findViewById(R.id.close_image);
-            mCloseView.removeAllViews();
-            iv.setImageDrawable(closerDrawable);
-            iv.setColorFilter(expBarColorMask, expPDMode);
-            mCloseView.addView(iv);
-        }
         mCloseView.mService = this;
         mEdgeBorder = res.getDimensionPixelSize(R.dimen.status_bar_edge_ignore);
 
@@ -952,21 +923,6 @@ public class StatusBarService extends IStatusBar.Stub
             });
         }
         ViewGroup content = (ViewGroup)row.findViewById(com.android.internal.R.id.content);
-        if (custExpBar) {
-            StateListDrawable sld = new StateListDrawable();
-            int stateFocused = android.R.attr.state_focused;
-            int statePressed = android.R.attr.state_pressed;
-            Drawable colornormal = res.getDrawable(com.android.internal.R.drawable.status_bar_item_background_normal_cust);
-            Drawable colorfocused = res.getDrawable(com.android.internal.R.drawable.status_bar_item_background_focus_cust);
-            Drawable colorpressed = res.getDrawable(com.android.internal.R.drawable.status_bar_item_background_pressed_cust);
-            sld.addState(new int[] {stateFocused}, colorfocused);
-            sld.addState(new int[] {statePressed}, colorpressed);
-            sld.addState(new int[] {}, colornormal);
-            sld.mutate();
-            sld.setColorFilter(expBarColorMask, expPDMode);
-            content.setBackgroundDrawable(sld);
-            
-        }
         content.setDescendantFocusability(ViewGroup.FOCUS_BLOCK_DESCENDANTS);
         content.setOnFocusChangeListener(mFocusChangeListener);
         PendingIntent contentIntent = n.contentIntent;
@@ -1902,14 +1858,14 @@ public class StatusBarService extends IStatusBar.Stub
     }
 
     private void updateColors() {
-        mDateView.setTextColor(Settings.System.getInt(mContext.getContentResolver(), Settings.System.DATE_COLOR, blackColor));
-        mNoNotificationsTitle.setTextColor(Settings.System.getInt(mContext.getContentResolver(), Settings.System.NO_NOTIF_COLOR, whiteColor));
-        mLatestTitle.setTextColor(Settings.System.getInt(mContext.getContentResolver(), Settings.System.LATEST_NOTIF_COLOR, whiteColor));
-        mOngoingTitle.setTextColor(Settings.System.getInt(mContext.getContentResolver(), Settings.System.ONGOING_NOTIF_COLOR, whiteColor));
-        mSpnLabel.setTextColor(Settings.System.getInt(mContext.getContentResolver(), Settings.System.SPN_LABEL_COLOR, blackColor));
-        mPlmnLabel.setTextColor(Settings.System.getInt(mContext.getContentResolver(), Settings.System.PLMN_LABEL_COLOR, blackColor));
+        mDateView.setTextColor(Settings.System.getInt(mContext.getContentResolver(), Settings.System.DATE_COLOR, whiteColor));
+        mNoNotificationsTitle.setTextColor(Settings.System.getInt(mContext.getContentResolver(), Settings.System.NO_NOTIF_COLOR, blackColor));
+        mLatestTitle.setTextColor(Settings.System.getInt(mContext.getContentResolver(), Settings.System.LATEST_NOTIF_COLOR, blackColor));
+        mOngoingTitle.setTextColor(Settings.System.getInt(mContext.getContentResolver(), Settings.System.ONGOING_NOTIF_COLOR, blackColor));
+        mSpnLabel.setTextColor(Settings.System.getInt(mContext.getContentResolver(), Settings.System.SPN_LABEL_COLOR, whiteColor));
+        mPlmnLabel.setTextColor(Settings.System.getInt(mContext.getContentResolver(), Settings.System.PLMN_LABEL_COLOR, whiteColor));
         mClearButton.setTextColor(Settings.System.getInt(mContext.getContentResolver(), Settings.System.CLEAR_BUTTON_LABEL_COLOR, blackColor));
-        tickerView.updateColors(Settings.System.getInt(mContext.getContentResolver(), Settings.System.NEW_NOTIF_TICKER_COLOR, blackColor));
+        tickerView.updateColors(Settings.System.getInt(mContext.getContentResolver(), Settings.System.NEW_NOTIF_TICKER_COLOR, whiteColor));
     }
 
     private View.OnClickListener mClearButtonListener = new View.OnClickListener() {
@@ -2206,39 +2162,6 @@ public class StatusBarService extends IStatusBar.Stub
         }
     }
 
-    private void getNotBarConfig() {
-        Resources res = mContext.getResources();
-        /*
-         * Setup color and bar type for notification strip
-         */
-        boolean useCustom = Settings.System.getInt(mContext.getContentResolver(),
-                Settings.System.NOTIF_BAR_CUSTOM, 0) == 1;
-        notifBarColorMask = Settings.System.getInt(mContext.getContentResolver(),
-                Settings.System.NOTIF_BAR_COLOR, whiteColor);
-        if (useCustom) {
-            custNotBar = true;
-        } else {
-            custNotBar = false;
-        }
-        /*
-         * Setup colors for expanded notification drawables
-        */
-        boolean useCustomExp = Settings.System.getInt(mContext.getContentResolver(),
-                Settings.System.NOTIF_EXPANDED_BAR_CUSTOM, 0) == 1;
-        expBarColorMask = Settings.System.getInt(mContext.getContentResolver(),
-                Settings.System.NOTIF_EXPANDED_BAR_COLOR, whiteColor);
-        int noalpha = expBarColorMask | 0xFF000000;
-        if (useCustomExp) {
-            closerDrawable = res.getDrawable(com.android.internal.R.drawable.status_bar_close_on_cust);
-            expBarHeadDrawable = res.getDrawable(com.android.internal.R.drawable.status_bar_header_background_cust,
-                    expBarColorMask, expPDMode);
-            expBarNotifTitleDrawable = res.getDrawable(com.android.internal.R.drawable.title_bar_portrait_cust,
-                    noalpha, expPDMode); // always solid
-            custExpBar = true;
-            } else {
-            custExpBar = false;
-            }
-    }
 
     public class SettingsObserver extends ContentObserver {
         public SettingsObserver(Handler handler) {
@@ -2248,15 +2171,7 @@ public class StatusBarService extends IStatusBar.Stub
         public void observe() {
             ContentResolver resolver = mContext.getContentResolver();
             resolver.registerContentObserver(
-                    Settings.System.getUriFor(Settings.System.NOTIF_EXPANDED_BAR_CUSTOM),
-                         false, this);
-
-            resolver.registerContentObserver(
                     Settings.System.getUriFor(Settings.System.NOTIF_EXPANDED_BAR_COLOR),
-                         false, this);
-
-            resolver.registerContentObserver(
-                    Settings.System.getUriFor(Settings.System.NOTIF_BAR_CUSTOM),
                          false, this);
 
             resolver.registerContentObserver(
@@ -2345,29 +2260,7 @@ public class StatusBarService extends IStatusBar.Stub
             ContentResolver resolver = mContext.getContentResolver();
             Resources res = mContext.getResources();
             updateColors();
-            if(uri.equals(Settings.System.getUriFor(Settings.System.NOTIF_EXPANDED_BAR_CUSTOM)) ||
-                uri.equals(Settings.System.getUriFor(Settings.System.NOTIF_EXPANDED_BAR_COLOR)) ||
-                uri.equals(Settings.System.getUriFor(Settings.System.NOTIF_BAR_CUSTOM)) ||
-                uri.equals(Settings.System.getUriFor(Settings.System.NOTIF_BAR_COLOR))) {
-
-                getNotBarConfig();
-                if (custExpBar) {
-                    mExpandedView.findViewById(R.id.exp_view_lin_layout).
-                            setBackgroundDrawable(expBarHeadDrawable);
-                   mNoNotificationsTitle.setBackgroundDrawable(expBarNotifTitleDrawable);
-                   mOngoingTitle.setBackgroundDrawable(expBarNotifTitleDrawable);
-                   mLatestTitle.setBackgroundDrawable(expBarNotifTitleDrawable);
-                }
-                if (custNotBar) {
-                    mStatusBarView.setBackgroundDrawable(
-                            res.getDrawable(com.android.internal.R.drawable.statusbar_background_sq,
-                                notifBarColorMask, notifPDMode));
-                    mDateView.setBackgroundDrawable(
-                            res.getDrawable(com.android.internal.R.drawable.statusbar_background_sq,
-                                notifBarColorMask, notifPDMode));
-                    mDateView.setPadding(6, 0, 6, 0);
-                }
-            } else if (uri.equals(Settings.System.getUriFor(Settings.System.WIDGET_BUTTONS))) {
+            if (uri.equals(Settings.System.getUriFor(Settings.System.WIDGET_BUTTONS))) {
                 setupPowerWidget();
             } else if (uri.equals(Settings.System.getUriFor(
                     Settings.System.EXPANDED_HIDE_ONCHANGE))) {

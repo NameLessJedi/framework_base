@@ -108,24 +108,14 @@ public class WifiButton extends PowerButton{
 
     public void updateState(Context context) {
         mContext = context;
-        boolean useCustomExp = Settings.System.getInt(mContext.getContentResolver(),
-        Settings.System.NOTIF_EXPANDED_BAR_CUSTOM, 0) == 1;
 
         currentState = sWifiState.getTriState(context);
         switch (currentState) {
             case STATE_DISABLED:
-                if (useCustomExp) {
-                    currentIcon = com.android.internal.R.drawable.stat_wifi_off_cust;
-                } else {
-                    currentIcon = com.android.internal.R.drawable.stat_wifi_off;
-                }
+                currentIcon = com.android.internal.R.drawable.stat_wifi_off;
                 break;
             case STATE_ENABLED:
-                if (useCustomExp) {
-                    currentIcon = com.android.internal.R.drawable.stat_wifi_on_cust;
-                } else {
-                    currentIcon = com.android.internal.R.drawable.stat_wifi_on;
-                }
+                currentIcon = com.android.internal.R.drawable.stat_wifi_on;
                 break;
             case STATE_INTERMEDIATE:
                 // In the transitional state, the bottom green bar
@@ -134,17 +124,9 @@ public class WifiButton extends PowerButton{
                 // user's intent. This is much easier to see in
                 // sunlight.
                 if (sWifiState.isTurningOn()) {
-                    if (useCustomExp) {
-                        currentIcon = com.android.internal.R.drawable.stat_wifi_on_cust;
-                    } else {
-                        currentIcon = com.android.internal.R.drawable.stat_wifi_on;
-                    }
+                    currentIcon = com.android.internal.R.drawable.stat_wifi_on;
                 } else {
-                    if (useCustomExp) {
-                        currentIcon = com.android.internal.R.drawable.stat_wifi_off_cust;
-                    } else {
-                        currentIcon = com.android.internal.R.drawable.stat_wifi_off;
-                    }
+                    currentIcon = com.android.internal.R.drawable.stat_wifi_off;
                 }
                 break;
         }

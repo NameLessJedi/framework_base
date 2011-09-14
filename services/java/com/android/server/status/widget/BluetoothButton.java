@@ -108,24 +108,14 @@ public class BluetoothButton extends PowerButton{
     @Override
     public void updateState(Context context) {
         mContext = context;
-        boolean useCustomExp = Settings.System.getInt(mContext.getContentResolver(),
-        Settings.System.NOTIF_EXPANDED_BAR_CUSTOM, 0) == 1;
 
         currentState = sBluetoothState.getTriState(context);
         switch (currentState) {
         case PowerButton.STATE_DISABLED:
-            if (useCustomExp) {
-                currentIcon = R.drawable.stat_bluetooth_off_cust;
-            } else {
-                currentIcon = R.drawable.stat_bluetooth_off;
-            }
+            currentIcon = R.drawable.stat_bluetooth_off;
             break;
         case PowerButton.STATE_ENABLED:
-            if (useCustomExp) {
-                currentIcon = R.drawable.stat_bluetooth_on_cust;
-            } else {
-                currentIcon = R.drawable.stat_bluetooth_on;
-            }
+            currentIcon = R.drawable.stat_bluetooth_on;
             break;
         case PowerButton.STATE_INTERMEDIATE:
             // In the transitional state, the bottom green bar
@@ -134,17 +124,9 @@ public class BluetoothButton extends PowerButton{
             // user's intent. This is much easier to see in
             // sunlight.
             if (sBluetoothState.isTurningOn()) {
-                if (useCustomExp) {
-                    currentIcon = R.drawable.stat_bluetooth_on_cust;
-                } else {
-                    currentIcon = R.drawable.stat_bluetooth_on;
-                }
+                currentIcon = R.drawable.stat_bluetooth_on;
             } else {
-                if (useCustomExp) {
-                    currentIcon = R.drawable.stat_bluetooth_off_cust;
-                } else {
-                    currentIcon = R.drawable.stat_bluetooth_off;
-                }
+                currentIcon = R.drawable.stat_bluetooth_off;
             }
             break;
         }

@@ -38,7 +38,7 @@ public class IconData {
     /**
      * Default colors to use for any text appearing on each type of icon.
      */
-    private static final int DEFAULT_TEXT_COLOR = 0xff000000;
+    private static final int DEFAULT_TEXT_COLOR = 0xffffffff;
     private static final int DEFAULT_ICON_COLOR = 0xffffffff;
     private static final int DEFAULT_ICON_NUMBER_COLOR = 0xffffffff;
 

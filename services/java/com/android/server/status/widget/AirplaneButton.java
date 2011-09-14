@@ -16,22 +16,11 @@ public class AirplaneButton extends PowerButton {
 
     public void updateState(Context context) {
         mContext = context;
-        boolean useCustomExp = Settings.System.getInt(mContext.getContentResolver(),
-        Settings.System.NOTIF_EXPANDED_BAR_CUSTOM, 0) == 1;
-
         if (getState(context)) {
-            if (useCustomExp) {
-                currentIcon = R.drawable.stat_airplane_on_cust;
-            } else {
-                currentIcon = R.drawable.stat_airplane_on;
-            }
+            currentIcon = R.drawable.stat_airplane_on;
             currentState = PowerButton.STATE_ENABLED;
         } else {
-            if (useCustomExp) {
-                currentIcon = R.drawable.stat_airplane_off_cust;
-            } else {
-                currentIcon = R.drawable.stat_airplane_off;
-            }
+            currentIcon = R.drawable.stat_airplane_off;
             currentState = PowerButton.STATE_DISABLED;
         }
 

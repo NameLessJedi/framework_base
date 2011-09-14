@@ -108,24 +108,14 @@ public class WifiApButton extends PowerButton {
     public void updateState(Context context) {
 
         mContext = context;
-        boolean useCustomExp = Settings.System.getInt(mContext.getContentResolver(),
-        Settings.System.NOTIF_EXPANDED_BAR_CUSTOM, 0) == 1;
 
         currentState = sWifiApState.getTriState(context);
         switch (currentState) {
         case PowerButton.STATE_DISABLED:
-            if (useCustomExp) {
-                currentIcon = R.drawable.stat_wifi_ap_off_cust;
-            } else {
-                currentIcon = R.drawable.stat_wifi_ap_off;
-            }
+            currentIcon = R.drawable.stat_wifi_ap_off;
             break;
         case PowerButton.STATE_ENABLED:
-            if (useCustomExp) {
-                currentIcon = R.drawable.stat_wifi_ap_on_cust;
-            } else {
-                currentIcon = R.drawable.stat_wifi_ap_on;
-            }
+            currentIcon = R.drawable.stat_wifi_ap_on;
             break;
         case PowerButton.STATE_INTERMEDIATE:
             // In the transitional state, the bottom green bar
@@ -134,17 +124,9 @@ public class WifiApButton extends PowerButton {
             // user's intent. This is much easier to see in
             // sunlight.
             if (sWifiApState.isTurningOn()) {
-                if (useCustomExp) {
-                    currentIcon = R.drawable.stat_wifi_ap_on_cust;
-                } else {
-                    currentIcon = R.drawable.stat_wifi_ap_on;
-                }
+                currentIcon = R.drawable.stat_wifi_ap_on;
             } else {
-                if (useCustomExp) {
-                    currentIcon = R.drawable.stat_wifi_ap_off_cust;
-                } else {
-                   currentIcon = R.drawable.stat_wifi_ap_off;
-                }
+                currentIcon = R.drawable.stat_wifi_ap_off;
             }
             break;
         }
