@@ -5,6 +5,7 @@ import com.android.server.status.widget.PowerButton;
 
 import android.content.ContentResolver;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.provider.Settings;
@@ -14,6 +15,13 @@ public class SyncButton extends PowerButton {
     Context mContext;
 
     static SyncButton ownButton=null;
+
+    public void callSettings(Context context) {
+        Intent intent = new Intent("android.settings.SYNC_SETTINGS");
+        intent.addCategory(Intent.CATEGORY_DEFAULT);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        context.startActivity(intent);
+    }
 
     /**
      * Toggle auto-sync

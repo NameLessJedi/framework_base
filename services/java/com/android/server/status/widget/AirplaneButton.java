@@ -26,6 +26,13 @@ public class AirplaneButton extends PowerButton {
 
     }
 
+    public void callSettings(Context context) {
+        Intent intent = new Intent("android.settings.AIRPLANE_MODE_SETTINGS");
+        intent.addCategory(Intent.CATEGORY_DEFAULT);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        context.startActivity(intent);
+    }
+
     /**
      * Toggles the state of Airplane
      *

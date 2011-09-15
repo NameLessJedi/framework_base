@@ -4,6 +4,7 @@ import com.android.internal.R;
 import com.android.server.status.widget.PowerButton;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.provider.Settings;
@@ -32,6 +33,13 @@ public class MobileDataButton extends PowerButton {
         ConnectivityManager cm = (ConnectivityManager) context
             .getSystemService(Context.CONNECTIVITY_SERVICE);
         return cm.getMobileDataEnabled();
+    }
+
+    public void callSettings(Context context) {
+        Intent intent = new Intent(Intent.ACTION_MAIN);
+        intent.setClassName("com.android.phone", "com.android.phone.Settings");
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        context.startActivity(intent);
     }
 
     /**

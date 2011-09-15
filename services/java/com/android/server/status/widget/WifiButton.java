@@ -7,7 +7,6 @@ import com.android.server.status.widget.StateTracker;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
@@ -134,6 +133,13 @@ public class WifiButton extends PowerButton{
 
     public void onReceive(Context context, Intent intent) {
         sWifiState.onActualStateChange(context, intent);
+    }
+
+    public void callSettings(Context context) {
+        Intent intent = new Intent("android.settings.WIFI_SETTINGS");
+        intent.addCategory(Intent.CATEGORY_DEFAULT);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        context.startActivity(intent);
     }
 
     public void toggleState(Context context) {

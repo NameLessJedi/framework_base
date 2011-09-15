@@ -24,6 +24,14 @@ public class SleepButton extends PowerButton {
         currentState = STATE_DISABLED;
     }
 
+    public void callSettings(Context context) {
+        // FIXME: CMParts ?
+        Intent intent = new Intent("android.settings.DISPLAY_SETTINGS");
+        intent.addCategory(Intent.CATEGORY_DEFAULT);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        context.startActivity(intent);
+    }
+
     public void toggleState(Context context) {
         PowerManager mPowerManager = (PowerManager)context.getSystemService(
                           Context.POWER_SERVICE);

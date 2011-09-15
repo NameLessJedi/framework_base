@@ -137,6 +137,12 @@ public class WifiApButton extends PowerButton {
         sWifiApState.onActualStateChange(context, intent);
     }
 
+    public void callSettings(Context context) {
+        Intent intent = new Intent(Intent.ACTION_MAIN);
+        intent.setClassName("com.android.settings", "com.android.settings.TetherSettings");
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        context.startActivity(intent);
+    }
 
     public void toggleState(Context context) {
         sWifiApState.toggleState(context);

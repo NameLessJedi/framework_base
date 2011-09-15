@@ -5,6 +5,7 @@ import com.android.server.status.widget.PowerButton;
 import com.android.server.status.widget.StateTracker;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.provider.Settings;
 
@@ -34,6 +35,12 @@ public class ScreenTimeoutButton extends PowerButton {
                 Settings.System.SCREEN_OFF_TIMEOUT, 0);
     }
 
+    public void callSettings(Context context) {
+        Intent intent = new Intent("android.settings.DISPLAY_SETTINGS");
+        intent.addCategory(Intent.CATEGORY_DEFAULT);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        context.startActivity(intent);
+    }
 
     public void toggleState(Context context) {
         int screentimeout = getScreenTtimeout(context);

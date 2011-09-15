@@ -5,6 +5,7 @@ import com.android.server.status.widget.PowerButton;
 
 import android.content.ContentResolver;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.IPowerManager;
 import android.os.RemoteException;
@@ -158,6 +159,13 @@ Low High Max
         } else {
             return getMinBacklight(context);
         }
+    }
+
+    public void callSettings(Context context) {
+        Intent intent = new Intent("android.settings.DISPLAY_SETTINGS");
+        intent.addCategory(Intent.CATEGORY_DEFAULT);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        context.startActivity(intent);
     }
 
     /**

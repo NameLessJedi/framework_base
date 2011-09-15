@@ -100,6 +100,13 @@ public class BluetoothButton extends PowerButton{
     void initButton(int position) {
     }
 
+    public void callSettings(Context context) {
+        Intent intent = new Intent("android.settings.BLUETOOTH_SETTINGS");
+        intent.addCategory(Intent.CATEGORY_DEFAULT);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        context.startActivity(intent);
+    }
+
     @Override
     public void toggleState(Context context) {
         sBluetoothState.toggleState(context);

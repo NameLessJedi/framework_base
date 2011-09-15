@@ -4,6 +4,7 @@ import com.android.internal.R;
 import com.android.server.status.widget.PowerButton;
 
 import android.content.Context;
+import android.content.Intent;
 import android.provider.Settings;
 
 public class AutoRotateButton extends PowerButton {
@@ -11,6 +12,13 @@ public class AutoRotateButton extends PowerButton {
     Context mContext;
 
     static AutoRotateButton ownButton = null;
+
+    public void callSettings(Context context) {
+        Intent intent = new Intent("android.settings.DISPLAY_SETTINGS");
+        intent.addCategory(Intent.CATEGORY_DEFAULT);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        context.startActivity(intent);
+    }
 
     @Override
     public void toggleState(Context context) {

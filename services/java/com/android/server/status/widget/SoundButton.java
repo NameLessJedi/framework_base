@@ -4,6 +4,7 @@ import com.android.internal.R;
 import com.android.server.status.widget.PowerButton;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.media.AudioManager;
 import android.provider.Settings;
@@ -46,6 +47,13 @@ public class SoundButton extends PowerButton {
             return RINGER_MODE_SILENT;
         }
         return RINGER_MODE_UNKNOWN;
+    }
+
+    public void callSettings(Context context) {
+        Intent intent = new Intent("android.settings.SOUND_SETTINGS");
+        intent.addCategory(Intent.CATEGORY_DEFAULT);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        context.startActivity(intent);
     }
 
     /**

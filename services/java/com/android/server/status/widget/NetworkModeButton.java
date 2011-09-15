@@ -83,6 +83,13 @@ public class NetworkModeButton extends PowerButton{
     void initButton(int position) {
     }
 
+    public void callSettings(Context context) {
+        Intent intent = new Intent(Intent.ACTION_MAIN);
+        intent.setClassName("com.android.phone", "com.android.phone.Settings");
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        context.startActivity(intent);
+    }
+
     @Override
     public void toggleState(Context context) {
         toggleState(context, false);

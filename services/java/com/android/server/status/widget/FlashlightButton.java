@@ -25,6 +25,10 @@ public class FlashlightButton extends PowerButton {
         }
     }
 
+    public void callSettings(Context context) {
+        // FIXME: Is there any setting for this ?
+    }
+
     public void toggleState(Context context) {
         boolean bright = Settings.System.getInt(context.getContentResolver(),
                 Settings.System.EXPANDED_FLASH_MODE, 0) == 1;

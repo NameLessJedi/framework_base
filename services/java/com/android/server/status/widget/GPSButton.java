@@ -5,6 +5,7 @@ import com.android.server.status.widget.PowerButton;
 
 import android.content.ContentResolver;
 import android.content.Context;
+import android.content.Intent;
 import android.location.LocationManager;
 import android.provider.Settings;
 import android.util.Log;
@@ -25,6 +26,13 @@ public class GPSButton extends PowerButton {
             currentIcon = com.android.internal.R.drawable.stat_gps_off;
             currentState = STATE_DISABLED;
         }
+    }
+
+    public void callSettings(Context context) {
+        Intent intent = new Intent("android.settings.LOCATION_SOURCE_SETTINGS");
+        intent.addCategory(Intent.CATEGORY_DEFAULT);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        context.startActivity(intent);
     }
 
     public void toggleState(Context context) {
