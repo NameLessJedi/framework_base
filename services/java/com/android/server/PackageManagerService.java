@@ -4970,7 +4970,7 @@ class PackageManagerService extends IPackageManager.Stub {
                                 } else if ((pkg.applicationInfo.flags & ApplicationInfo.FLAG_SDEXT_STORAGE) != 0) {
                                     return PackageHelper.RECOMMEND_INSTALL_SDEXT;
                                 } else
-                                    return pkgLite.recommendedInstallLocation;
+                                    return PackageHelper.RECOMMEND_INSTALL_INTERNAL;
                             }
                         }
                     } else {
