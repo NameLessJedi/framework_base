@@ -1750,18 +1750,6 @@ public final class Settings {
         public static final String USER_DEFINED_KEY3_APP = "user_defined_key3_app";
 
         /**
-         * Toggles whether to display the PLMN field on the Lockscreen
-         * @hide
-         */
-        public static final String SHOW_PLMN_LS = "show_plmn_ls";
-
-        /**
-         * Toggles whether to display the SPN field on the Lockscreen
-         * @hide
-         */
-        public static final String SHOW_SPN_LS = "show_spn_ls";
-
-        /**
          * Toggles whether to display the PLMN field on the Notification bar
          * @hide
          */
