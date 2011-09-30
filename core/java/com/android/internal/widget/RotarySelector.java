@@ -197,7 +197,7 @@ public class RotarySelector extends View {
 
         mArrowLongLeft = getBitmapFor(R.drawable.jog_dial_arrow_long_left_green);
         mArrowLongRight = getBitmapFor(R.drawable.jog_dial_arrow_long_right_red);
-        mArrowDown = getBitmapFor(R.drawable.jog_dial_arrow_short_down_green);
+        mArrowDown = getBitmapFor(R.drawable.jog_dial_arrow_short_down_blue);
         mArrowShortLeftAndRight = getBitmapFor(R.drawable.jog_dial_arrow_short_left_and_right);
 
         mInterpolator = new DecelerateInterpolator(1f);
