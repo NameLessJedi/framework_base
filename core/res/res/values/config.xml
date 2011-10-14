@@ -330,4 +330,34 @@
     LED. This also needs a liblights module that enables them accordingly. -->
     <bool name="config_amber_green_light">false</bool>
 
+    <!-- Configure rotary bottom margin -->
+    <integer name="config_rotaryMarginBottomDIP">60</integer>
+
+    <!-- Configure rotary outer radius -->
+    <integer name="config_rotaryOuterRadiusDIP">390</integer>
+
+    <!-- Configure rotary stroke width -->
+    <integer name="config_rotaryStrokeWidthDIP">83</integer>
+
+    <!-- Configure lense unlock time label offset -->
+    <integer name="config_lenseTimeLabelOffsetDIP">0</integer>
+
+    <!-- Configure ring lockscreen threshold radius -->
+    <integer name="config_ringThresholdDIP">160</integer>
+
+    <!-- Configure ring lockscreen bottom margin -->
+    <integer name="config_ringBaselineBottomDIP">150</integer>
+
+    <!-- Configure ring lockscreen center ring offset -->
+    <integer name="config_ringCenterOffsetDIP">30</integer>
+
+    <!-- Configure ring lockscreen secondary ring icon size -->
+    <integer name="config_ringSecIconSizeDIP">40</integer>
+
+    <!-- Configure ring lockscreen secondary ring offset -->
+    <integer name="config_ringSecBaselineOffsetDIP">30</integer>
+
+    <!-- Configure ring lockscreen center secondary ring(s) offset -->
+    <integer name="config_ringSecCenterOffsetDIP">30</integer>
+
 </resources>
